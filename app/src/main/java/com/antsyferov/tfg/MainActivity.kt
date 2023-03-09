@@ -3,6 +3,7 @@ package com.antsyferov.tfg
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -36,21 +37,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.antsyferov.tfg.models.Publication
 import com.antsyferov.tfg.navigation.Screen
+import com.antsyferov.tfg.ui.theme.MainViewModel
 import com.antsyferov.tfg.ui.theme.TFGTheme
 import java.util.*
 
 class MainActivity : ComponentActivity() {
 
-    val description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries"
-
-    val publications = listOf(
-        Publication(id = 1, title = "Publication 1", status = "Active", image = R.drawable.publication1, endDate = Date(), articlesCount = 10, description),
-        Publication(id = 2, title = "Publication 2", status = "Finished", image = R.drawable.publication1, endDate = Date(), articlesCount = 10, description),
-        Publication(id = 3, title = "Publication 3", status = "Active", image = R.drawable.publication1, endDate = Date(), articlesCount = 10, description),
-        Publication(id = 4, title = "Publication 4", status = "In Review", image = R.drawable.publication1, endDate = Date(), articlesCount = 10, description),
-        Publication(id = 5, title = "Publication 5", status = "Active", image = R.drawable.publication1, endDate = Date(), articlesCount = 10, description),
-        Publication(id = 6, title = "Publication 6", status = "Active", image = R.drawable.publication1, endDate = Date(), articlesCount = 10, description)
-    )
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,7 +89,10 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(navController, startDestination = Screen.PublicationsList.route, Modifier.padding(innerPadding)) {
                         composable(Screen.Profile.route) { BasicText("Profile") }
-                        composable(Screen.PublicationsList.route) { PublicationsList(modifier = Modifier, publications) }
+                        composable(Screen.PublicationsList.route) {
+                            val list = remember { viewModel.getPublications() }
+                            PublicationsList(modifier = Modifier, list)
+                        }
                         composable(Screen.MyArticlesList.route) { BasicText("MyArticles") }
                     }
                 }
