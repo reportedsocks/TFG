@@ -36,6 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.antsyferov.tfg.models.User
 import com.antsyferov.tfg.navigation.Screen
 import com.antsyferov.tfg.ui.composables.Profile
 import com.antsyferov.tfg.ui.composables.PublicationsList
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     private lateinit var auth: FirebaseAuth
+    private val authUI = AuthUI.getInstance()
 
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
@@ -68,7 +70,13 @@ class MainActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         if (currentUser != null) {
-            initUi()
+            initUi(
+                User(
+                    currentUser.displayName,
+                    currentUser.email,
+                    currentUser.phoneNumber
+                )
+            )
         } else {
 
             val providers = arrayListOf(
@@ -77,7 +85,7 @@ class MainActivity : ComponentActivity() {
                 AuthUI.IdpConfig.GoogleBuilder().build()
             )
 
-            val signInIntent = AuthUI.getInstance()
+            val signInIntent = authUI
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .build()
@@ -92,7 +100,13 @@ class MainActivity : ComponentActivity() {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
             val user = auth.currentUser
-            initUi()
+            initUi(
+                User(
+                    user?.displayName,
+                    user?.email,
+                    user?.phoneNumber
+                )
+            )
         } else {
             // Sign in failed. If response is null the user canceled the
             // sign-in flow using the back button. Otherwise check
@@ -101,7 +115,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun initUi() {
+    private fun initUi(user: User) {
         setContent {
             TFGTheme {
                 val navController = rememberNavController()
@@ -144,12 +158,16 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(navController, startDestination = Screen.PublicationsList.route, Modifier.padding(innerPadding)) {
                         composable(Screen.Profile.route) { Profile(
+                            user,
                             onSignOutCallback = {
-                                AuthUI.getInstance().signOut(this@MainActivity)
+                                authUI.signOut(this@MainActivity)
                                     .addOnCompleteListener { recreate() }
 
                             },
-                            onDeleteAccountCallback = { AuthUI.getInstance().delete(this@MainActivity).addOnCompleteListener { recreate() }}
+                            onDeleteAccountCallback = {
+                                authUI.delete(this@MainActivity)
+                                    .addOnCompleteListener { recreate() }
+                            }
 
                         ) }
                         composable(Screen.PublicationsList.route) {
