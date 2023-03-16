@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "268868319800",
+    "project_id": "antsyferov-tfg",
+    "storage_bucket": "antsyferov-tfg.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268868319800:android:ac7d5d6150c5fea31c44cd",
+        "android_client_info": {
+          "package_name": "com.antsyferov.tfg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "268868319800-m80o1acfp8laafoeosfjl1j75423jbnv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.antsyferov.tfg",
+            "certificate_hash": "e9e1b5b882bc0b4ad8c460ed89807b4a3126adc5"
+          }
+        },
+        {
+          "client_id": "268868319800-54pkh80a0gi6drst5qc171ikp865rp4m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlWL1S-2M5pCSR_AzWICNz9hgFCnfrxk4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268868319800-54pkh80a0gi6drst5qc171ikp865rp4m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
