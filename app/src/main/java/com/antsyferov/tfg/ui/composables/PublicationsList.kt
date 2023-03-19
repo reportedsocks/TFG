@@ -20,11 +20,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.antsyferov.tfg.models.Publication
+import com.antsyferov.tfg.ui.MainViewModel
 
 @Composable
 fun PublicationsList(modifier: Modifier, publications: List<Publication>) {
-    val list = remember { publications }
+
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -32,7 +34,7 @@ fun PublicationsList(modifier: Modifier, publications: List<Publication>) {
         state = rememberLazyListState()
     ) {
         items(
-            items = list,
+            items = publications,
             key = { item: Publication -> item.id }
         ) {
             Publication(modifier = Modifier, it)

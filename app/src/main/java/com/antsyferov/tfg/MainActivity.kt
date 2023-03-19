@@ -4,43 +4,30 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.antsyferov.tfg.R
+import com.antsyferov.tfg.models.Publication
 import com.antsyferov.tfg.models.User
 import com.antsyferov.tfg.navigation.Screen
 import com.antsyferov.tfg.ui.composables.Profile
 import com.antsyferov.tfg.ui.composables.PublicationsList
-import com.antsyferov.tfg.ui.theme.MainViewModel
+import com.antsyferov.tfg.ui.MainViewModel
 import com.antsyferov.tfg.ui.theme.TFGTheme
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -48,6 +35,8 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 class MainActivity : ComponentActivity() {
 
@@ -171,8 +160,10 @@ class MainActivity : ComponentActivity() {
 
                         ) }
                         composable(Screen.PublicationsList.route) {
-                            val list = remember { viewModel.getPublications() }
-                            PublicationsList(modifier = Modifier, list)
+                            val publications: List<Publication> by viewModel.getPublications().collectAsStateWithLifecycle(
+                                initialValue = emptyList()
+                            )
+                            PublicationsList(modifier = Modifier, publications)
                         }
                         composable(Screen.MyArticlesList.route) { BasicText("MyArticles") }
                     }
@@ -187,5 +178,6 @@ class MainActivity : ComponentActivity() {
 fun BasicText(text: String) {
     Text(text = text)
 }
+
 
 
