@@ -12,8 +12,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import javax.inject.Inject
 
-class FirebaseDataSource: DataSource {
+class FirebaseDataSource @Inject constructor(): DataSource {
 
     private val db = Firebase.firestore
 
