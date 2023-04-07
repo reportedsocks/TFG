@@ -1,4 +1,4 @@
-package com.antsyferov.tfg.models
+package com.antsyferov.tfg.ui.models
 
 data class User(
     val name: String?,

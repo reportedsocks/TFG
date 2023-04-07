@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,12 +21,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.antsyferov.tfg.models.Publication
-import com.antsyferov.tfg.ui.MainViewModel
+import com.antsyferov.tfg.ui.models.Publication
 
 @Composable
-fun PublicationsList(modifier: Modifier, publications: List<Publication>) {
+fun PublicationsList(
+    modifier: Modifier,
+    publications: List<Publication>,
+    onNavToArticles: (String) -> Unit
+) {
 
     LazyColumn(
         modifier = modifier,
@@ -37,20 +40,22 @@ fun PublicationsList(modifier: Modifier, publications: List<Publication>) {
             items = publications,
             key = { item: Publication -> item.id }
         ) {
-            Publication(modifier = Modifier, it)
+            Publication(modifier = Modifier, it, onNavToArticles)
         }
     }
 }
 
 @Composable
-fun Publication(modifier: Modifier, publication: Publication) {
+fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (String) -> Unit) {
 
     var expanded by remember { mutableStateOf(false) }
 
     Surface(
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colors.primary,
-        modifier = modifier
+        modifier = modifier.clickable {
+            onNavToArticles.invoke(publication.id)
+        }
     ) {
 
         Column(
@@ -84,12 +89,17 @@ fun Publication(modifier: Modifier, publication: Publication) {
                         text = publication.title,
                         style = MaterialTheme.typography.h5
                     )
+                    val status = when(publication.status) {
+                        Publication.Status.OPEN -> "Open"
+                        Publication.Status.CLOSED -> "Closed"
+                        Publication.Status.IN_REVIEW -> "In Review"
+                    }
                     Text(
-                        text = "Status: ${publication.status}",
+                        text = "Status: $status",
                         style = MaterialTheme.typography.subtitle1
                     )
                     Text(
-                        text = "Articles: ${publication.articlesCount}",
+                        text = "Articles: xxx",
                         style = MaterialTheme.typography.subtitle1
                     )
 

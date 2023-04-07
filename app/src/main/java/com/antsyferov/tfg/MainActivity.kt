@@ -6,28 +6,27 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.antsyferov.tfg.R
-import com.antsyferov.tfg.models.Publication
-import com.antsyferov.tfg.models.User
+import androidx.navigation.navArgument
+import com.antsyferov.tfg.ui.models.Publication
+import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.navigation.Screen
 import com.antsyferov.tfg.ui.composables.Profile
 import com.antsyferov.tfg.ui.composables.PublicationsList
-import com.antsyferov.tfg.ui.MainViewModel
+import com.antsyferov.tfg.ui.composables.ArticlesList
 import com.antsyferov.tfg.ui.theme.TFGTheme
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -35,8 +34,6 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 class MainActivity : ComponentActivity() {
 
@@ -44,6 +41,8 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
     private val authUI = AuthUI.getInstance()
+
+    private val screens = listOf(Screen.PublicationsList, Screen.MyArticlesList, Screen.Profile, Screen.ArticlesList)
 
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
@@ -114,9 +113,9 @@ class MainActivity : ComponentActivity() {
                         TopAppBar {
                             val navBackStackEntry by navController.currentBackStackEntryAsState()
                             val currentDestination = navBackStackEntry?.destination
-                            val selected = homeScreens.find { it.route == (currentDestination?.route ?: "") }
+                            val selected = screens.find { it.route == (currentDestination?.route ?: "") }
                             Text(
-                                text = stringResource(id = selected?.resourceId ?: R.string.publications_list_title),
+                                text = stringResource(id = selected?.title ?: R.string.publications_list_title),
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
                         }
@@ -128,8 +127,8 @@ class MainActivity : ComponentActivity() {
 
                             homeScreens.forEach { screen ->
                                 BottomNavigationItem(
-                                    icon = { Icon(screen.icon, contentDescription = null) },
-                                    label = { Text(stringResource(screen.resourceId)) },
+                                    icon = { Icon(screen.icon ?: Icons.Filled.List, contentDescription = null) },
+                                    label = { Text(stringResource(screen.title)) },
                                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                                     onClick = {
                                         navController.navigate(screen.route) {
@@ -163,20 +162,24 @@ class MainActivity : ComponentActivity() {
                             val publications: List<Publication> by viewModel.getPublications().collectAsStateWithLifecycle(
                                 initialValue = emptyList()
                             )
-                            PublicationsList(modifier = Modifier, publications)
+                            PublicationsList(modifier = Modifier, publications) { publicationId ->
+                                navController.navigate(Screen.ArticlesList.cleanRoute + publicationId)
+                            }
                         }
-                        composable(Screen.MyArticlesList.route) { BasicText("MyArticles") }
+                        composable(Screen.MyArticlesList.route) { ArticlesList("My Articles") }
+
+                        composable(
+                            Screen.ArticlesList.route,
+                            arguments = listOf(navArgument(Screen.ArticlesList.param ?: "") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            ArticlesList(backStackEntry.arguments?.getString(Screen.ArticlesList.param) ?: "")
+                        }
                     }
                 }
             }
         }
     }
 
-}
-
-@Composable
-fun BasicText(text: String) {
-    Text(text = text)
 }
 
 

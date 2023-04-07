@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.antsyferov.tfg.models.User
+import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.ui.theme.Purple200
 
 @Composable

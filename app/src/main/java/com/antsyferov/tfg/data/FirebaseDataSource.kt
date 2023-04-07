@@ -1,24 +1,25 @@
 package com.antsyferov.tfg.data
 
 import android.util.Log
-import com.antsyferov.tfg.models.Publication
+import com.antsyferov.tfg.data.models.Article
+import com.antsyferov.tfg.data.models.Publication
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 
-class FirebaseDB {
+class FirebaseDataSource: DataSource {
 
     private val db = Firebase.firestore
 
     private val TAG = "FIREBASE_DB"
 
-    val publication = hashMapOf(
+    /*val publication = hashMapOf(
         "title" to "Test publication",
         "description" to "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         "review_date" to "20-04-2023",
@@ -35,21 +36,19 @@ class FirebaseDB {
                 Log.w(TAG, "Error adding document", e)
             }
 
-    }
+    }*/
 
-    fun getPublications(): Flow<List<Publication>> = callbackFlow {
-
+    override fun getPublications(): Flow<List<Publication>> = callbackFlow {
 
         val successListener =
             OnSuccessListener<QuerySnapshot> { result ->
                 val mutableList = mutableListOf<Publication>()
                 for (document in result) {
                     Log.d(TAG, "${document.id} => ${document.data}")
-                    mutableList.add(Publication(
-                        id = document.id,
-                        title = document.data["title"].toString(),
-                        description = document.data["description"].toString()
-                    ))
+
+                    mutableList.add(
+                        document.toObject<Publication>().apply { id = document.id }
+                    )
 
                 }
                 trySend(mutableList).onFailure { Log.d(TAG, it.toString()) }
@@ -65,6 +64,29 @@ class FirebaseDB {
         awaitClose()
     }
 
+    override fun getArticles(publicationId: String): Flow<List<Article>> = callbackFlow {
+        val successListener =
+            OnSuccessListener<QuerySnapshot> { result ->
+                val mutableList = mutableListOf<Article>()
+                for (document in result) {
+                    Log.d(TAG, "${document.id} => ${document.data}")
 
+                    mutableList.add(
+                        document.toObject<Article>().apply { id = document.id }
+                    )
+
+                }
+                trySend(mutableList).onFailure { Log.d(TAG, it.toString()) }
+            }
+
+        db.collection("publications/$publicationId/articles")
+            .get()
+            .addOnSuccessListener(successListener)
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
+
+        awaitClose()
+    }
 
 }
