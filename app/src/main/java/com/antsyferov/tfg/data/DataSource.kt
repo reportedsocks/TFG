@@ -10,4 +10,6 @@ interface DataSource {
 
     fun getArticles(publicationId: String): Flow<List<Article>>
 
+    fun addArticle(publicationId: String, article: Article)
+
 }

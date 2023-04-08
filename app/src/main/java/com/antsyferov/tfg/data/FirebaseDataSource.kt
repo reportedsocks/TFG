@@ -90,4 +90,15 @@ class FirebaseDataSource @Inject constructor(): DataSource {
         awaitClose()
     }
 
+    override fun addArticle(publicationId: String, article: Article) {
+        db.collection("publications/$publicationId/articles")
+            .add(article)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
+    }
+
 }

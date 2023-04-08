@@ -26,4 +26,10 @@ sealed class Screen(
         R.string.articles_list_title,
         param = "publication_id"
     )
+
+    object AddArticle: Screen(
+        "addArticle/",
+        R.string.articles_list_title,
+        param = "publication_id"
+    )
 }
