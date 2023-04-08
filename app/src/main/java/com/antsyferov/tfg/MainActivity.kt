@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -31,6 +34,7 @@ import com.antsyferov.tfg.ui.composables.PublicationsList
 import com.antsyferov.tfg.ui.composables.ArticlesList
 import com.antsyferov.tfg.ui.models.Article
 import com.antsyferov.tfg.ui.theme.TFGTheme
+import com.antsyferov.tfg.util.*
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
@@ -38,6 +42,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -46,8 +51,6 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
     private val authUI = AuthUI.getInstance()
-
-    private val screens = listOf(Screen.PublicationsList, Screen.MyArticlesList, Screen.Profile, Screen.ArticlesList)
 
     private var selectedPublicationId: String? = null
 
@@ -116,29 +119,38 @@ class MainActivity : ComponentActivity() {
         setContent {
             TFGTheme {
                 val navController = rememberNavController()
-                val homeScreens = listOf(Screen.PublicationsList, Screen.MyArticlesList, Screen.Profile)
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route ?: ""
                 Scaffold(
                     topBar = {
-                        TopAppBar {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentDestination = navBackStackEntry?.destination
-                            val selected = screens.find { it.route == (currentDestination?.route ?: "") }
-                            Text(
-                                text = stringResource(id = selected?.title ?: R.string.publications_list_title),
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                        }
+                        TopAppBar (
+                            title = {
+                                val selected = screens.find { it.route == currentRoute }
+                                Text(
+                                    text = stringResource(id = selected?.title ?: R.string.publications_list_title),
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            },
+                            navigationIcon =
+                            if (isNotHomeScreen(currentRoute) && navController.previousBackStackEntry != null) {
+                                {
+                                    IconButton(onClick = { navController.navigateUp() }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.ArrowBack,
+                                            contentDescription = "Back"
+                                        )
+                                    }
+                                }
+                            } else null
+                        )
                     },
                     bottomBar = {
                         BottomNavigation {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentDestination = navBackStackEntry?.destination
-
                             homeScreens.forEach { screen ->
                                 BottomNavigationItem(
-                                    icon = { Icon(screen.icon ?: Icons.Filled.List, contentDescription = null) },
+                                    icon = { Icon(screen.icon ?: Icons.Filled.List, contentDescription = getString(screen.title)) },
                                     label = { Text(stringResource(screen.title)) },
-                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                                    selected = isSubSection(screen, currentRoute),
                                     onClick = {
                                         navController.navigate(screen.route) {
                                             popUpTo(navController.graph.findStartDestination().id) {
@@ -153,8 +165,7 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     floatingActionButton = {
-                        val navBackStackEntry by navController.currentBackStackEntryAsState()
-                        if (Screen.ArticlesList.route == (navBackStackEntry?.destination?.route ?: "")) {
+                        if (Screen.ArticlesList.route == currentRoute) {
                             FloatingActionButton(onClick = {
                                 navController.navigate(Screen.AddArticle.cleanRoute + selectedPublicationId)
                             }) {
@@ -179,10 +190,10 @@ class MainActivity : ComponentActivity() {
 
                         ) }
                         composable(Screen.PublicationsList.route) {
-                            val publications: List<Publication> by viewModel.getPublications().collectAsStateWithLifecycle(
-                                initialValue = emptyList()
+                            val result by viewModel.getPublications().collectAsStateWithLifecycle(
+                                initialValue = ResultOf.Loading
                             )
-                            PublicationsList(modifier = Modifier, publications) { publicationId ->
+                            PublicationsList(modifier = Modifier, result) { publicationId ->
                                 selectedPublicationId = publicationId
                                 navController.navigate(Screen.ArticlesList.cleanRoute + publicationId)
                             }
@@ -194,10 +205,10 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument(Screen.ArticlesList.param ?: "") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val publicationId = backStackEntry.arguments?.getString(Screen.ArticlesList.param) ?: ""
-                            val articles: List<Article> by viewModel.getArticles(publicationId).collectAsStateWithLifecycle(
-                                initialValue = emptyList()
+                            val result by viewModel.getArticles(publicationId).collectAsStateWithLifecycle(
+                                initialValue = ResultOf.Loading
                             )
-                            ArticlesList(Modifier, articles) {}
+                            ArticlesList(Modifier, result) {}
                         }
 
                         composable(
@@ -205,8 +216,14 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument(Screen.AddArticle.param ?: "") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val publicationId = backStackEntry.arguments?.getString(Screen.AddArticle.param) ?: ""
+                            val coroutineScope = rememberCoroutineScope()
                             AddArticle(modifier = Modifier) { title ->
-                                viewModel.addArticle(publicationId, title, user)
+                                coroutineScope.launch {
+                                    val result = viewModel.addArticle(publicationId, title, user)
+                                    if (result is ResultOf.Success) {
+                                        navController.navigateUp()
+                                    }
+                                }
                             }
                         }
                     }

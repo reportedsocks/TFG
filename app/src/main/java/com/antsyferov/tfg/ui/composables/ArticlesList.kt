@@ -21,32 +21,40 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.antsyferov.tfg.R
 import com.antsyferov.tfg.ui.models.Article
+import com.antsyferov.tfg.util.ResultOf
 
 @Composable
 fun ArticlesList(
     modifier: Modifier,
-    articles: List<Article>,
+    result: ResultOf<List<Article>>,
     onNavToArticle: (String) -> Unit
 ) {
-    LazyVerticalGrid(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        state = rememberLazyGridState()
-    ) {
-        items(
-            items = articles,
-            key = { item: Article -> item.id }
-        ) {
-            Article(
-                modifier = Modifier,
-                article = it,
-                onNavToArticle = onNavToArticle
-            )
+
+    when(result) {
+        is ResultOf.Success -> {
+            LazyVerticalGrid(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                state = rememberLazyGridState()
+            ) {
+                items(
+                    items = result.data,
+                    key = { item: Article -> item.id }
+                ) {
+                    Article(
+                        modifier = Modifier,
+                        article = it,
+                        onNavToArticle = onNavToArticle
+                    )
+                }
+            }
         }
+        else -> {}
     }
+
 }
 
 @Composable

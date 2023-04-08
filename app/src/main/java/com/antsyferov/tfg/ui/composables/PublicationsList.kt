@@ -22,27 +22,34 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.antsyferov.tfg.ui.models.Publication
+import com.antsyferov.tfg.util.ResultOf
 
 @Composable
 fun PublicationsList(
     modifier: Modifier,
-    publications: List<Publication>,
+    result: ResultOf<List<Publication>>,
     onNavToArticles: (String) -> Unit
 ) {
 
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        state = rememberLazyListState()
-    ) {
-        items(
-            items = publications,
-            key = { item: Publication -> item.id }
-        ) {
-            Publication(modifier = Modifier, it, onNavToArticles)
+    when(result) {
+        is ResultOf.Success -> {
+            LazyColumn(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                state = rememberLazyListState()
+            ) {
+                items(
+                    items = result.data,
+                    key = { item: Publication -> item.id }
+                ) {
+                    Publication(modifier = Modifier, it, onNavToArticles)
+                }
+            }
         }
+        else -> {}
     }
+
 }
 
 @Composable

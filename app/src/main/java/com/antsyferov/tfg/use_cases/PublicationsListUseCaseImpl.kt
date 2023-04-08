@@ -1,26 +1,29 @@
 package com.antsyferov.tfg.use_cases
 
 import com.antsyferov.tfg.data.DataSource
-import com.antsyferov.tfg.data.FirebaseDataSource
 import com.antsyferov.tfg.ui.models.Publication
+import com.antsyferov.tfg.util.ResultOf
+import com.antsyferov.tfg.util.transform
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.Date
 import javax.inject.Inject
 
 class PublicationsListUseCaseImpl @Inject constructor(
-    val dataSource: DataSource
+    private val dataSource: DataSource
 ): PublicationsListUseCase {
 
-    override fun getPublications(): Flow<List<Publication>> {
-        return dataSource.getPublications().map {
-           it.map { firebasePublication ->
-               Publication(
-                   id = firebasePublication.id,
-                   title = firebasePublication.title,
-                   description = firebasePublication.description,
-                   status = getPublicationStatus(firebasePublication.review_date, firebasePublication.completion_date)
-               )
+    override fun getPublications(): Flow<ResultOf<List<Publication>>> {
+        return dataSource.getPublications().map { result ->
+           result.transform {
+               map { firebasePublication ->
+                   Publication(
+                       id = firebasePublication.id,
+                       title = firebasePublication.title,
+                       description = firebasePublication.description,
+                       status = getPublicationStatus(firebasePublication.review_date, firebasePublication.completion_date)
+                   )
+               }
            }
         }
     }

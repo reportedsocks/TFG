@@ -5,4 +5,5 @@
     <string name="publications_list_title">Publications</string>
     <string name="my_articles_list_title">My Articles</string>
     <string name="articles_list_title">Articles</string>
+    <string name="article_add_title">Add Article</string>
 </resources>
