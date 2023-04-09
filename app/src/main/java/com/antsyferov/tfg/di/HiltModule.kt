@@ -1,5 +1,7 @@
 package com.antsyferov.tfg.di
 
+import android.app.Application
+import android.content.ContentResolver
 import com.antsyferov.tfg.data.DataSource
 import com.antsyferov.tfg.data.FirebaseDataSource
 import com.antsyferov.tfg.use_cases.ArticlesUseCase
@@ -8,6 +10,7 @@ import com.antsyferov.tfg.use_cases.PublicationsListUseCase
 import com.antsyferov.tfg.use_cases.PublicationsListUseCaseImpl
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton

@@ -1,5 +1,7 @@
 package com.antsyferov.tfg.data
 
+import android.content.ContentResolver
+import android.net.Uri
 import android.util.Log
 import com.antsyferov.tfg.data.models.Article
 import com.antsyferov.tfg.data.models.Publication
@@ -9,19 +11,27 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class FirebaseDataSource @Inject constructor(): DataSource {
+class FirebaseDataSource @Inject constructor(
+    private val contentResolver: ContentResolver
+): DataSource {
 
     private val db = Firebase.firestore
+    private val storage = Firebase.storage
 
     private val TAG = "FIREBASE_DB"
+    private val TAG_S = "FIREBASE_STORAGE"
 
     /*val publication = hashMapOf(
         "title" to "Test publication",
@@ -95,17 +105,38 @@ class FirebaseDataSource @Inject constructor(): DataSource {
         awaitClose()
     }
 
-    override suspend fun addArticle(publicationId: String, article: Article): ResultOf<Unit> = suspendCoroutine { cont ->
+    override suspend fun addArticle(publicationId: String, article: Article): ResultOf<String> = suspendCoroutine { cont ->
         db.collection("publications/$publicationId/articles")
             .add(article)
             .addOnSuccessListener { documentReference ->
                 Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                cont.resume(ResultOf.Success(Unit))
+                cont.resume(ResultOf.Success(documentReference.id))
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Error adding document", e)
                 cont.resume(ResultOf.Failure(e))
             }
+    }
+
+    override suspend fun savePdf(
+        articleId: String,
+        uri: Uri
+    ): ResultOf<Unit> = suspendCoroutine { cont ->
+        val reference = storage.reference.child("articles/$articleId.pdf")
+        contentResolver.openInputStream(uri)?.let { inputStream ->
+            reference.putStream(inputStream).apply {
+                addOnSuccessListener {
+                    Log.d(TAG_S, it.toString())
+                    inputStream.run { close() }
+                    cont.resume(ResultOf.Success(Unit))
+                }
+                addOnFailureListener {
+                    Log.d(TAG_S, it.toString())
+                    inputStream.run { close() }
+                    cont.resume(ResultOf.Failure(it))
+                }
+            }
+        }
     }
 
 }

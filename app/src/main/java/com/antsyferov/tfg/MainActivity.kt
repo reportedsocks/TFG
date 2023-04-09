@@ -1,8 +1,12 @@
 package com.antsyferov.tfg
 
+import android.content.ContentResolver
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -11,13 +15,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -25,14 +26,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.antsyferov.tfg.ui.models.Publication
-import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.navigation.Screen
 import com.antsyferov.tfg.ui.composables.AddArticle
+import com.antsyferov.tfg.ui.composables.ArticlesList
 import com.antsyferov.tfg.ui.composables.Profile
 import com.antsyferov.tfg.ui.composables.PublicationsList
-import com.antsyferov.tfg.ui.composables.ArticlesList
-import com.antsyferov.tfg.ui.models.Article
+import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.ui.theme.TFGTheme
 import com.antsyferov.tfg.util.*
 import com.firebase.ui.auth.AuthUI
@@ -43,6 +42,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -58,6 +58,12 @@ class MainActivity : ComponentActivity() {
         FirebaseAuthUIActivityResultContract()
     ) { res ->
         this.onSignInResult(res)
+    }
+
+    private val filePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.fileUriFlow.value = uri
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,6 +118,17 @@ class MainActivity : ComponentActivity() {
             // sign-in flow using the back button. Otherwise check
             // response.getError().getErrorCode() and handle the error.
             // ...
+        }
+    }
+    private fun openFile() {
+        filePickerLauncher.launch("application/pdf")
+    }
+
+    private fun queryName(uri: Uri): String? {
+        return contentResolver.query(uri, null, null, null, null)?.use {
+            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            it.moveToFirst()
+            it.getString(nameIndex)
         }
     }
 
@@ -217,14 +234,24 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val publicationId = backStackEntry.arguments?.getString(Screen.AddArticle.param) ?: ""
                             val coroutineScope = rememberCoroutineScope()
-                            AddArticle(modifier = Modifier) { title ->
-                                coroutineScope.launch {
-                                    val result = viewModel.addArticle(publicationId, title, user)
-                                    if (result is ResultOf.Success) {
-                                        navController.navigateUp()
+                            val uri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
+                            AddArticle(
+                                modifier = Modifier,
+                                pdfName = uri?.let { queryName(it) },
+                                onSaveButtonClick = { title ->
+                                    coroutineScope.launch {
+                                        val result =
+                                            uri?.let {
+                                                viewModel.addArticle(publicationId, title, user, it)
+                                            }
+                                        if (result is ResultOf.Success) {
+                                            viewModel.fileUriFlow.value = null
+                                            navController.navigateUp()
+                                        }
                                     }
-                                }
-                            }
+                                },
+                                onOpenFile = { openFile() }
+                            )
                         }
                     }
                 }
