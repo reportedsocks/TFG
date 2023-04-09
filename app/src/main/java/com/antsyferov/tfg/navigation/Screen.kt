@@ -32,4 +32,6 @@ sealed class Screen(
         R.string.article_add_title,
         param = "publication_id"
     )
+
+    object EditProfile: Screen("editProfile", R.string.edit_profile_title)
 }

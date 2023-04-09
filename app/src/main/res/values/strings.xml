@@ -2,6 +2,7 @@
     <string name="app_name">TFG</string>
 
     <string name="profile_title">Profile</string>
+    <string name="edit_profile_title">Edit Profile</string>
     <string name="publications_list_title">Publications</string>
     <string name="my_articles_list_title">My Articles</string>
     <string name="articles_list_title">Articles</string>

@@ -13,6 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -27,10 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.antsyferov.tfg.navigation.Screen
-import com.antsyferov.tfg.ui.composables.AddArticle
-import com.antsyferov.tfg.ui.composables.ArticlesList
-import com.antsyferov.tfg.ui.composables.Profile
-import com.antsyferov.tfg.ui.composables.PublicationsList
+import com.antsyferov.tfg.ui.composables.*
 import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.ui.theme.TFGTheme
 import com.antsyferov.tfg.util.*
@@ -158,7 +156,17 @@ class MainActivity : ComponentActivity() {
                                         )
                                     }
                                 }
-                            } else null
+                            } else null,
+                            actions = {
+                                if (currentRoute == Screen.Profile.route) {
+                                    IconButton(onClick = { navController.navigate(Screen.EditProfile.route) }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Edit,
+                                            contentDescription = "Edit"
+                                        )
+                                    }
+                                }
+                            }
                         )
                     },
                     bottomBar = {
@@ -251,6 +259,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 onOpenFile = { openFile() }
+                            )
+                        }
+
+                        composable(Screen.EditProfile.route) {
+                            EditProfile(
+                                modifier = Modifier,
+                                user = user,
+                                onSaveButtonClicked = {}
                             )
                         }
                     }
