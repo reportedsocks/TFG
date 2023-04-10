@@ -1,6 +1,8 @@
 package com.antsyferov.tfg
 
 import android.content.ContentResolver
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -8,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -17,6 +20,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import coil.compose.AsyncImage
 import com.antsyferov.tfg.navigation.Screen
 import com.antsyferov.tfg.ui.composables.*
 import com.antsyferov.tfg.ui.models.User
@@ -72,14 +78,14 @@ class MainActivity : ComponentActivity() {
         val currentUser = auth.currentUser
 
         if (currentUser != null) {
-            initUi(
-                User(
-                    currentUser.uid,
-                    currentUser.displayName,
-                    currentUser.email,
-                    currentUser.phoneNumber
-                )
+            viewModel.userFlow.value = User(
+                currentUser.uid,
+                currentUser.displayName,
+                currentUser.email,
+                currentUser.phoneNumber,
+                currentUser.photoUrl
             )
+            initUi()
         } else {
 
             val providers = arrayListOf(
@@ -103,14 +109,14 @@ class MainActivity : ComponentActivity() {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
             val user = auth.currentUser
-            initUi(
-                User(
-                    user?.uid,
-                    user?.displayName,
-                    user?.email,
-                    user?.phoneNumber
-                )
+            viewModel.userFlow.value = User(
+                user?.uid,
+                user?.displayName,
+                user?.email,
+                user?.phoneNumber,
+                user?.photoUrl
             )
+            initUi()
         } else {
             // Sign in failed. If response is null the user canceled the
             // sign-in flow using the back button. Otherwise check
@@ -122,6 +128,10 @@ class MainActivity : ComponentActivity() {
         filePickerLauncher.launch("application/pdf")
     }
 
+    private fun openImage() {
+        filePickerLauncher.launch("image/*")
+    }
+
     private fun queryName(uri: Uri): String? {
         return contentResolver.query(uri, null, null, null, null)?.use {
             val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
@@ -130,12 +140,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun initUi(user: User) {
+    private fun initUi() {
         setContent {
             TFGTheme {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route ?: ""
+                val user by viewModel.userFlow.collectAsStateWithLifecycle()
                 Scaffold(
                     topBar = {
                         TopAppBar (
@@ -263,10 +274,38 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.EditProfile.route) {
+                            val coroutineScope = rememberCoroutineScope()
+                            val uri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
+
+                            uri?.let { uri ->
+
+                            }
+
                             EditProfile(
+                                contentResolver = contentResolver,
                                 modifier = Modifier,
                                 user = user,
-                                onSaveButtonClicked = {}
+                                uri = uri,
+                                verifyName = viewModel::validateName,
+                                verifyEmail = viewModel::validateEmail,
+                                onSelectImage = { openImage() },
+                                onSaveButtonClicked = { name, email ->
+                                    coroutineScope.launch {
+                                        val result = viewModel.saveProfile(user, name, email, uri)
+                                        if (result is ResultOf.Success) {
+                                            navController.navigateUp()
+                                            val firebaseUser = auth.currentUser
+                                            viewModel.fileUriFlow.value = null
+                                            viewModel.userFlow.value = User(
+                                                firebaseUser?.uid,
+                                                firebaseUser?.displayName,
+                                                firebaseUser?.email,
+                                                firebaseUser?.phoneNumber,
+                                                firebaseUser?.photoUrl
+                                            )
+                                        }
+                                    }
+                                }
                             )
                         }
                     }

@@ -4,10 +4,7 @@ import android.app.Application
 import android.content.ContentResolver
 import com.antsyferov.tfg.data.DataSource
 import com.antsyferov.tfg.data.FirebaseDataSource
-import com.antsyferov.tfg.use_cases.ArticlesUseCase
-import com.antsyferov.tfg.use_cases.ArticlesUseCaseImpl
-import com.antsyferov.tfg.use_cases.PublicationsListUseCase
-import com.antsyferov.tfg.use_cases.PublicationsListUseCaseImpl
+import com.antsyferov.tfg.use_cases.*
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -27,9 +24,15 @@ abstract class HiltModule {
 
     @Singleton
     @Binds
-    abstract fun articlesListUseCase(
-        articlesListUseCase: ArticlesUseCaseImpl
+    abstract fun articlesUseCase(
+        articlesUseCase: ArticlesUseCaseImpl
     ): ArticlesUseCase
+
+    @Singleton
+    @Binds
+    abstract fun profileUseCase(
+        profileUseCase: ProfileUseCaseImpl
+    ): ProfileUseCase
 
     @Singleton
     @Binds

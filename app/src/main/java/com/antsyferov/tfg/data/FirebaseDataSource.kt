@@ -7,18 +7,19 @@ import com.antsyferov.tfg.data.models.Article
 import com.antsyferov.tfg.data.models.Publication
 import com.antsyferov.tfg.util.ResultOf
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -29,6 +30,7 @@ class FirebaseDataSource @Inject constructor(
 
     private val db = Firebase.firestore
     private val storage = Firebase.storage
+    private val auth = Firebase.auth
 
     private val TAG = "FIREBASE_DB"
     private val TAG_S = "FIREBASE_STORAGE"
@@ -136,6 +138,63 @@ class FirebaseDataSource @Inject constructor(
                     cont.resume(ResultOf.Failure(it))
                 }
             }
+        }
+    }
+
+    override suspend fun saveAvatar(uri: Uri): ResultOf<Uri> = suspendCoroutine { cont ->
+        val userId = auth.currentUser?.uid ?: ""
+        val reference = storage.reference.child("avatars/$userId")
+        contentResolver.openInputStream(uri)?.let { inputStream ->
+            reference
+                .putStream(inputStream)
+                .continueWithTask { task ->
+                    if (!task.isSuccessful) {
+                        cont.resume(ResultOf.Failure(task.exception))
+                    }
+                    reference.downloadUrl
+                }
+                .addOnCompleteListener { urlTask ->
+                    cont.resume(
+                        if (urlTask.isSuccessful)
+                            ResultOf.Success(urlTask.result)
+                        else
+                            ResultOf.Failure(urlTask.exception)
+                    )
+                }
+        }
+    }
+
+    override suspend fun updateUserNameAndAvatar(name: String?, avatar: Uri?): ResultOf<Unit> = suspendCoroutine { cont ->
+        val user = auth.currentUser
+        if (user != null) {
+            user.updateProfile(
+                userProfileChangeRequest {
+                    name?.let { displayName = it }
+                    avatar?.let { photoUri = it }
+                }
+            ).addOnCompleteListener { task ->
+                if (task.isSuccessful)
+                    cont.resume(ResultOf.Success(Unit))
+                else
+                    cont.resume(ResultOf.Failure(task.exception))
+            }
+        } else {
+            cont.resume(ResultOf.Failure(null))
+        }
+
+    }
+
+    override suspend fun updateUserEmail(email: String): ResultOf<Unit> = suspendCoroutine { cont ->
+        val user = auth.currentUser
+        if (user != null) {
+            user.updateEmail(email).addOnCompleteListener { task ->
+                if (task.isSuccessful)
+                    cont.resume(ResultOf.Success(Unit))
+                else
+                    cont.resume(ResultOf.Failure(task.exception))
+            }
+        } else {
+            cont.resume(ResultOf.Failure(null))
         }
     }
 

@@ -16,4 +16,10 @@ interface DataSource {
 
     suspend fun savePdf(articleId: String, uri: Uri): ResultOf<Unit>
 
+    suspend fun saveAvatar(uri: Uri): ResultOf<Uri>
+
+    suspend fun updateUserNameAndAvatar(name: String?, avatar: Uri?): ResultOf<Unit>
+
+    suspend fun updateUserEmail(email: String): ResultOf<Unit>
+
 }
