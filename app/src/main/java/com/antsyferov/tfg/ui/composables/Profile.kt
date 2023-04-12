@@ -2,6 +2,7 @@ package com.antsyferov.tfg.ui.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -34,6 +35,7 @@ fun Profile(
         val avatarModifier = Modifier
             .size(150.dp)
             .clip(CircleShape)
+            .border(width = 3.dp, color = MaterialTheme.colors.primary, shape = CircleShape)
 
         if (user.avatar != null) {
             AsyncImage(

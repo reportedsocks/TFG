@@ -147,7 +147,19 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route ?: ""
                 val user by viewModel.userFlow.collectAsStateWithLifecycle()
+                val scaffoldState = rememberScaffoldState()
+                val coroutineScope = rememberCoroutineScope()
+
+                fun showErrorSnackBar(e: Throwable?) {
+                    coroutineScope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = "Some error occurred!"
+                        )
+                    }
+                }
+
                 Scaffold(
+                    scaffoldState = scaffoldState,
                     topBar = {
                         TopAppBar (
                             title = {
@@ -229,10 +241,15 @@ class MainActivity : ComponentActivity() {
                             val result by viewModel.getPublications().collectAsStateWithLifecycle(
                                 initialValue = ResultOf.Loading
                             )
-                            PublicationsList(modifier = Modifier, result) { publicationId ->
-                                selectedPublicationId = publicationId
-                                navController.navigate(Screen.ArticlesList.cleanRoute + publicationId)
-                            }
+                            PublicationsList(
+                                modifier = Modifier,
+                                result = result,
+                                showErrorSnackBar = { e -> showErrorSnackBar(e) },
+                                onNavToArticles = { publicationId ->
+                                    selectedPublicationId = publicationId
+                                    navController.navigate(Screen.ArticlesList.cleanRoute + publicationId)
+                                }
+                            )
                         }
                         composable(Screen.MyArticlesList.route) { Text(text = "My Articles") }
 
@@ -244,7 +261,12 @@ class MainActivity : ComponentActivity() {
                             val result by viewModel.getArticles(publicationId).collectAsStateWithLifecycle(
                                 initialValue = ResultOf.Loading
                             )
-                            ArticlesList(Modifier, result) {}
+                            ArticlesList(
+                                modifier = Modifier,
+                                result = result,
+                                onNavToArticle = {},
+                                showErrorSnackBar = { e -> showErrorSnackBar(e)}
+                            )
                         }
 
                         composable(
@@ -252,13 +274,15 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument(Screen.AddArticle.param ?: "") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val publicationId = backStackEntry.arguments?.getString(Screen.AddArticle.param) ?: ""
-                            val coroutineScope = rememberCoroutineScope()
                             val uri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
+                            var shouldShowLoader by remember { mutableStateOf(false) }
                             AddArticle(
                                 modifier = Modifier,
                                 pdfName = uri?.let { queryName(it) },
+                                shouldShowLoader = shouldShowLoader,
                                 onSaveButtonClick = { title ->
                                     coroutineScope.launch {
+                                        shouldShowLoader = true
                                         val result =
                                             uri?.let {
                                                 viewModel.addArticle(publicationId, title, user, it)
@@ -266,7 +290,12 @@ class MainActivity : ComponentActivity() {
                                         if (result is ResultOf.Success) {
                                             viewModel.fileUriFlow.value = null
                                             navController.navigateUp()
-                                        }
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                message = "Article added!"
+                                            )
+                                        } else
+                                            showErrorSnackBar(null)
+                                        shouldShowLoader = false
                                     }
                                 },
                                 onOpenFile = { openFile() }
@@ -274,12 +303,8 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.EditProfile.route) {
-                            val coroutineScope = rememberCoroutineScope()
                             val uri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
-
-                            uri?.let { uri ->
-
-                            }
+                            var shouldShowLoader by remember { mutableStateOf(false) }
 
                             EditProfile(
                                 contentResolver = contentResolver,
@@ -288,9 +313,11 @@ class MainActivity : ComponentActivity() {
                                 uri = uri,
                                 verifyName = viewModel::validateName,
                                 verifyEmail = viewModel::validateEmail,
+                                shouldShowLoader = shouldShowLoader,
                                 onSelectImage = { openImage() },
                                 onSaveButtonClicked = { name, email ->
                                     coroutineScope.launch {
+                                        shouldShowLoader = true
                                         val result = viewModel.saveProfile(user, name, email, uri)
                                         if (result is ResultOf.Success) {
                                             navController.navigateUp()
@@ -303,7 +330,13 @@ class MainActivity : ComponentActivity() {
                                                 firebaseUser?.phoneNumber,
                                                 firebaseUser?.photoUrl
                                             )
-                                        }
+                                            scaffoldState.snackbarHostState.showSnackbar(
+                                                message = "Profile updated!"
+                                            )
+
+                                        } else
+                                            showErrorSnackBar(null)
+                                        shouldShowLoader = false
                                     }
                                 }
                             )

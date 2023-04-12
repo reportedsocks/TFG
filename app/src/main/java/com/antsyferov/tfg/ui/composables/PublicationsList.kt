@@ -1,5 +1,6 @@
 package com.antsyferov.tfg.ui.composables
 
+import android.widget.ProgressBar
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -28,7 +29,8 @@ import com.antsyferov.tfg.util.ResultOf
 fun PublicationsList(
     modifier: Modifier,
     result: ResultOf<List<Publication>>,
-    onNavToArticles: (String) -> Unit
+    onNavToArticles: (String) -> Unit,
+    showErrorSnackBar: (Throwable?) -> Unit
 ) {
 
     when(result) {
@@ -47,7 +49,8 @@ fun PublicationsList(
                 }
             }
         }
-        else -> {}
+        is ResultOf.Loading -> Loader(modifier = Modifier)
+        is ResultOf.Failure -> showErrorSnackBar.invoke(result.e)
     }
 
 }

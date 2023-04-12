@@ -27,7 +27,8 @@ import com.antsyferov.tfg.util.ResultOf
 fun ArticlesList(
     modifier: Modifier,
     result: ResultOf<List<Article>>,
-    onNavToArticle: (String) -> Unit
+    onNavToArticle: (String) -> Unit,
+    showErrorSnackBar: (Throwable?) -> Unit
 ) {
 
     when(result) {
@@ -52,7 +53,8 @@ fun ArticlesList(
                 }
             }
         }
-        else -> {}
+        is ResultOf.Loading -> Loader(modifier = Modifier)
+        is ResultOf.Failure -> showErrorSnackBar.invoke(result.e)
     }
 
 }

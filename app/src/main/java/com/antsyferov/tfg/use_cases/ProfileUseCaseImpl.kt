@@ -34,7 +34,7 @@ class ProfileUseCaseImpl @Inject constructor(
             emailResult = dataSource.updateUserEmail(email)
         }
 
-        return if (nameResult is ResultOf.Success && emailResult is ResultOf.Success)
+        return if (nameResult is ResultOf.Success && emailResult is ResultOf.Success && avatarResult is ResultOf.Success)
             ResultOf.Success(Unit)
         else
             ResultOf.Failure(null)
