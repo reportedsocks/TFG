@@ -116,6 +116,7 @@ class MainActivity : ComponentActivity() {
                 user?.phoneNumber,
                 user?.photoUrl
             )
+            viewModel.addUser(user?.uid ?: "")
             initUi()
         } else {
             // Sign in failed. If response is null the user canceled the
@@ -251,7 +252,17 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable(Screen.MyArticlesList.route) { Text(text = "My Articles") }
+                        composable(Screen.MyArticlesList.route) {
+                            val result by viewModel.getArticlesByUser(user.id ?: "").collectAsStateWithLifecycle(
+                                initialValue = ResultOf.Loading
+                            )
+                            ArticlesList(
+                                modifier = Modifier,
+                                result = result,
+                                onNavToArticle = {},
+                                showErrorSnackBar = { e -> showErrorSnackBar(e)}
+                            )
+                        }
 
                         composable(
                             Screen.ArticlesList.route,

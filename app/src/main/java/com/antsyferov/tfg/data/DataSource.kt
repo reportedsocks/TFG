@@ -12,6 +12,8 @@ interface DataSource {
 
     fun getArticles(publicationId: String): Flow<ResultOf<List<Article>>>
 
+    fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>>
+
     suspend fun addArticle(publicationId: String, article: Article): ResultOf<String>
 
     suspend fun savePdf(articleId: String, uri: Uri): ResultOf<Unit>
@@ -21,5 +23,7 @@ interface DataSource {
     suspend fun updateUserNameAndAvatar(name: String?, avatar: Uri?): ResultOf<Unit>
 
     suspend fun updateUserEmail(email: String): ResultOf<Unit>
+
+    suspend fun addUser(userId: String): ResultOf<Unit>
 
 }

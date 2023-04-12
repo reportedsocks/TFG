@@ -2,6 +2,7 @@ package com.antsyferov.tfg
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.antsyferov.tfg.ui.models.Article
 import com.antsyferov.tfg.ui.models.Publication
 import com.antsyferov.tfg.ui.models.User
@@ -13,6 +14,7 @@ import com.antsyferov.tfg.util.ValidationUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.collections.List
 @HiltViewModel
@@ -32,8 +34,18 @@ class MainViewModel @Inject constructor(
         return articlesUseCase.getArticles(publicationId)
     }
 
+    fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>> {
+        return articlesUseCase.getArticlesByUser(userId)
+    }
+
     suspend fun addArticle(publicationId: String, title: String, user: User, uri: Uri): ResultOf<Unit> {
         return articlesUseCase.addArticle(publicationId, title, user, uri)
+    }
+
+    fun addUser(userId: String) {
+        viewModelScope.launch {
+            profileUseCase.addUser(userId)
+        }
     }
 
     suspend fun saveProfile(user: User, name: String, email: String, uri: Uri?): ResultOf<Unit> {

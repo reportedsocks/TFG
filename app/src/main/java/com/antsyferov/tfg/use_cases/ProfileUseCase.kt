@@ -8,4 +8,6 @@ interface ProfileUseCase {
 
     suspend fun saveProfileChanges(name: String?, email: String?, uri: Uri?): ResultOf<Unit>
 
+    suspend fun addUser(userId: String): ResultOf<Unit>
+
 }

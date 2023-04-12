@@ -35,17 +35,21 @@ fun PublicationsList(
 
     when(result) {
         is ResultOf.Success -> {
-            LazyColumn(
-                modifier = modifier,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                state = rememberLazyListState()
-            ) {
-                items(
-                    items = result.data,
-                    key = { item: Publication -> item.id }
+            if (result.data.isEmpty()) {
+                EmptyList(text = "No publications found!", modifier = Modifier)
+            } else {
+                LazyColumn(
+                    modifier = modifier,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                    state = rememberLazyListState()
                 ) {
-                    Publication(modifier = Modifier, it, onNavToArticles)
+                    items(
+                        items = result.data,
+                        key = { item: Publication -> item.id }
+                    ) {
+                        Publication(modifier = Modifier, it, onNavToArticles)
+                    }
                 }
             }
         }

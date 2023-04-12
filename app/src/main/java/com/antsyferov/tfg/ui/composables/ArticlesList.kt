@@ -14,6 +14,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,25 +35,30 @@ fun ArticlesList(
 
     when(result) {
         is ResultOf.Success -> {
-            LazyVerticalGrid(
-                modifier = modifier,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                state = rememberLazyGridState()
-            ) {
-                items(
-                    items = result.data,
-                    key = { item: Article -> item.id }
+            if (result.data.isEmpty()) {
+                EmptyList(text = "No articles at the moment!", modifier = Modifier)
+            } else {
+                LazyVerticalGrid(
+                    modifier = modifier,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                    state = rememberLazyGridState()
                 ) {
-                    Article(
-                        modifier = Modifier,
-                        article = it,
-                        onNavToArticle = onNavToArticle
-                    )
+                    items(
+                        items = result.data,
+                        key = { item: Article -> item.id }
+                    ) {
+                        Article(
+                            modifier = Modifier,
+                            article = it,
+                            onNavToArticle = onNavToArticle
+                        )
+                    }
                 }
             }
+            
         }
         is ResultOf.Loading -> Loader(modifier = Modifier)
         is ResultOf.Failure -> showErrorSnackBar.invoke(result.e)
@@ -75,8 +82,8 @@ fun Article(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_pdf),

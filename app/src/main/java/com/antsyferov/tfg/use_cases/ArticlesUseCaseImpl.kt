@@ -30,6 +30,19 @@ class ArticlesUseCaseImpl @Inject constructor(
         }
     }
 
+    override fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>> {
+        return dataSource.getArticlesByUser(userId).map { result ->
+            result.transform {
+                map { firebaseArticle ->
+                    Article(
+                        firebaseArticle.id ?: "",
+                        firebaseArticle.title
+                    )
+                }
+            }
+        }
+    }
+
     override suspend fun addArticle(
         publicationId: String,
         title: String,

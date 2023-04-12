@@ -41,5 +41,9 @@ class ProfileUseCaseImpl @Inject constructor(
 
     }
 
+    override suspend fun addUser(userId: String): ResultOf<Unit> {
+        return dataSource.addUser(userId)
+    }
+
 
 }
