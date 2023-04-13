@@ -1,6 +1,4 @@
-package com.antsyferov.tfg.util
-
-import com.antsyferov.tfg.navigation.Screen
+package com.antsyferov.tfg.navigation
 
 val screens = listOf(Screen.PublicationsList, Screen.MyArticlesList, Screen.Profile, Screen.ArticlesList, Screen.AddArticle, Screen.EditProfile)
 

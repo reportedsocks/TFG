@@ -1,8 +1,5 @@
 package com.antsyferov.tfg
 
-import android.content.ContentResolver
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -10,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -20,24 +16,15 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import coil.compose.AsyncImage
-import com.antsyferov.tfg.navigation.Screen
-import com.antsyferov.tfg.ui.composables.*
+import com.antsyferov.tfg.navigation.*
 import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.ui.theme.TFGTheme
-import com.antsyferov.tfg.util.*
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
@@ -55,8 +42,6 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
     private val authUI = AuthUI.getInstance()
-
-    private var selectedPublicationId: String? = null
 
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
@@ -101,9 +86,7 @@ class MainActivity : ComponentActivity() {
             signInLauncher.launch(signInIntent)
         }
 
-
     }
-
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         val response = result.idpResponse
@@ -125,21 +108,6 @@ class MainActivity : ComponentActivity() {
             // ...
         }
     }
-    private fun openFile() {
-        filePickerLauncher.launch("application/pdf")
-    }
-
-    private fun openImage() {
-        filePickerLauncher.launch("image/*")
-    }
-
-    private fun queryName(uri: Uri): String? {
-        return contentResolver.query(uri, null, null, null, null)?.use {
-            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            it.moveToFirst()
-            it.getString(nameIndex)
-        }
-    }
 
     private fun initUi() {
         setContent {
@@ -150,14 +118,6 @@ class MainActivity : ComponentActivity() {
                 val user by viewModel.userFlow.collectAsStateWithLifecycle()
                 val scaffoldState = rememberScaffoldState()
                 val coroutineScope = rememberCoroutineScope()
-
-                fun showErrorSnackBar(e: Throwable?) {
-                    coroutineScope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = "Some error occurred!"
-                        )
-                    }
-                }
 
                 Scaffold(
                     scaffoldState = scaffoldState,
@@ -216,7 +176,8 @@ class MainActivity : ComponentActivity() {
                     floatingActionButton = {
                         if (Screen.ArticlesList.route == currentRoute) {
                             FloatingActionButton(onClick = {
-                                navController.navigate(Screen.AddArticle.cleanRoute + selectedPublicationId)
+                                val publicationId = navController.currentBackStackEntry?.arguments?.getString(Screen.ArticlesList.param)
+                                navController.navigate(Screen.AddArticle.cleanRoute + publicationId)
                             }) {
                                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                             }
@@ -224,141 +185,19 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButtonPosition = FabPosition.End
                 ) { innerPadding ->
-                    NavHost(navController, startDestination = Screen.PublicationsList.route, Modifier.padding(innerPadding)) {
-                        composable(Screen.Profile.route) { Profile(
-                            user,
-                            onSignOutCallback = {
-                                authUI.signOut(this@MainActivity)
-                                    .addOnCompleteListener { recreate() }
-
-                            },
-                            onDeleteAccountCallback = {
-                                authUI.delete(this@MainActivity)
-                                    .addOnCompleteListener { recreate() }
-                            }
-
-                        ) }
-                        composable(Screen.PublicationsList.route) {
-                            val result by viewModel.getPublications().collectAsStateWithLifecycle(
-                                initialValue = ResultOf.Loading
-                            )
-                            PublicationsList(
-                                modifier = Modifier,
-                                result = result,
-                                showErrorSnackBar = { e -> showErrorSnackBar(e) },
-                                onNavToArticles = { publicationId ->
-                                    selectedPublicationId = publicationId
-                                    navController.navigate(Screen.ArticlesList.cleanRoute + publicationId)
-                                }
-                            )
-                        }
-                        composable(Screen.MyArticlesList.route) {
-                            val result by viewModel.getArticlesByUser(user.id ?: "").collectAsStateWithLifecycle(
-                                initialValue = ResultOf.Loading
-                            )
-                            ArticlesList(
-                                modifier = Modifier,
-                                result = result,
-                                onNavToArticle = {},
-                                showErrorSnackBar = { e -> showErrorSnackBar(e)}
-                            )
-                        }
-
-                        composable(
-                            Screen.ArticlesList.route,
-                            arguments = listOf(navArgument(Screen.ArticlesList.param ?: "") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val publicationId = backStackEntry.arguments?.getString(Screen.ArticlesList.param) ?: ""
-                            val result by viewModel.getArticles(publicationId).collectAsStateWithLifecycle(
-                                initialValue = ResultOf.Loading
-                            )
-                            ArticlesList(
-                                modifier = Modifier,
-                                result = result,
-                                onNavToArticle = {},
-                                showErrorSnackBar = { e -> showErrorSnackBar(e)}
-                            )
-                        }
-
-                        composable(
-                            Screen.AddArticle.route,
-                            arguments = listOf(navArgument(Screen.AddArticle.param ?: "") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val publicationId = backStackEntry.arguments?.getString(Screen.AddArticle.param) ?: ""
-                            val uri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
-                            var shouldShowLoader by remember { mutableStateOf(false) }
-                            AddArticle(
-                                modifier = Modifier,
-                                pdfName = uri?.let { queryName(it) },
-                                shouldShowLoader = shouldShowLoader,
-                                onSaveButtonClick = { title ->
-                                    coroutineScope.launch {
-                                        shouldShowLoader = true
-                                        val result =
-                                            uri?.let {
-                                                viewModel.addArticle(publicationId, title, user, it)
-                                            }
-                                        if (result is ResultOf.Success) {
-                                            viewModel.fileUriFlow.value = null
-                                            navController.navigateUp()
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                message = "Article added!"
-                                            )
-                                        } else
-                                            showErrorSnackBar(null)
-                                        shouldShowLoader = false
-                                    }
-                                },
-                                onOpenFile = { openFile() }
-                            )
-                        }
-
-                        composable(Screen.EditProfile.route) {
-                            val uri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
-                            var shouldShowLoader by remember { mutableStateOf(false) }
-
-                            EditProfile(
-                                contentResolver = contentResolver,
-                                modifier = Modifier,
-                                user = user,
-                                uri = uri,
-                                verifyName = viewModel::validateName,
-                                verifyEmail = viewModel::validateEmail,
-                                shouldShowLoader = shouldShowLoader,
-                                onSelectImage = { openImage() },
-                                onSaveButtonClicked = { name, email ->
-                                    coroutineScope.launch {
-                                        shouldShowLoader = true
-                                        val result = viewModel.saveProfile(user, name, email, uri)
-                                        if (result is ResultOf.Success) {
-                                            navController.navigateUp()
-                                            val firebaseUser = auth.currentUser
-                                            viewModel.fileUriFlow.value = null
-                                            viewModel.userFlow.value = User(
-                                                firebaseUser?.uid,
-                                                firebaseUser?.displayName,
-                                                firebaseUser?.email,
-                                                firebaseUser?.phoneNumber,
-                                                firebaseUser?.photoUrl
-                                            )
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                message = "Profile updated!"
-                                            )
-
-                                        } else
-                                            showErrorSnackBar(null)
-                                        shouldShowLoader = false
-                                    }
-                                }
-                            )
-                        }
-                    }
+                    NavigationGraph(
+                        this,
+                        navController = navController,
+                        innerPadding = innerPadding,
+                        viewModel = viewModel,
+                        coroutineScope = coroutineScope,
+                        scaffoldState = scaffoldState,
+                        filePickerLauncher = filePickerLauncher,
+                        user = user
+                    )
                 }
             }
         }
     }
 
 }
-
-
-
