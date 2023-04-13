@@ -7,25 +7,18 @@ import com.antsyferov.tfg.data.models.Article
 import com.antsyferov.tfg.data.models.Publication
 import com.antsyferov.tfg.data.models.User
 import com.antsyferov.tfg.util.ResultOf
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -62,55 +55,56 @@ class FirebaseDataSource @Inject constructor(
 
     override fun getPublications(): Flow<ResultOf<List<Publication>>> = callbackFlow {
 
-        val successListener =
-            OnSuccessListener<QuerySnapshot> { result ->
-                val mutableList = mutableListOf<Publication>()
-                for (document in result) {
-                    Log.d(TAG, "${document.id} => ${document.data}")
+        val registration = db.collection("publications")
+            .addSnapshotListener { snapshot, error ->
 
-                    mutableList.add(
-                        document.toObject<Publication>().apply { id = document.id }
-                    )
-
+                if (error != null) {
+                    trySend(ResultOf.Failure(error))
                 }
-                trySend(ResultOf.Success(mutableList)).onFailure { Log.d(TAG, it.toString()) }
+
+                if (snapshot != null) {
+                    val publications = mutableListOf<Publication>()
+                    for (document in snapshot) {
+                        Log.d(TAG, "${document.id} => ${document.data}")
+
+                        publications.add(
+                            document.toObject<Publication>().apply { id = document.id }
+                        )
+
+                    }
+                    trySend(ResultOf.Success(publications))
+                }
+
             }
 
-        db.collection("publications")
-            .get()
-            .addOnSuccessListener(successListener)
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents.", exception)
-                trySend(ResultOf.Failure(exception)).onFailure { Log.d(TAG, it.toString()) }
-            }
-
-        awaitClose()
+        awaitClose { registration.remove() }
     }
 
     override fun getArticles(publicationId: String): Flow<ResultOf<List<Article>>> = callbackFlow {
-        val successListener =
-            OnSuccessListener<QuerySnapshot> { result ->
-                val mutableList = mutableListOf<Article>()
-                for (document in result) {
-                    Log.d(TAG, "${document.id} => ${document.data}")
 
-                    mutableList.add(
-                        document.toObject<Article>().apply { id = document.id }
-                    )
+        val registration = db.collection("publications/$publicationId/articles")
+            .addSnapshotListener { snapshot, error ->
 
+                if (error != null) {
+                    trySend(ResultOf.Failure(error))
                 }
-                trySend(ResultOf.Success(mutableList)).onFailure { Log.d(TAG, it.toString()) }
+
+                if (snapshot != null) {
+                    val articles = mutableListOf<Article>()
+                    for (document in snapshot) {
+                        Log.d(TAG, "${document.id} => ${document.data}")
+
+                        articles.add(
+                            document.toObject<Article>().apply { id = document.id }
+                        )
+
+                    }
+                    trySend(ResultOf.Success(articles))
+                }
+
             }
 
-        db.collection("publications/$publicationId/articles")
-            .get()
-            .addOnSuccessListener(successListener)
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents.", exception)
-                trySend(ResultOf.Failure(exception)).onFailure { Log.d(TAG, it.toString()) }
-            }
-
-        awaitClose()
+        awaitClose { registration.remove() }
     }
 
     override fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>> = callbackFlow {

@@ -12,8 +12,7 @@ import com.antsyferov.tfg.use_cases.PublicationsListUseCase
 import com.antsyferov.tfg.util.ResultOf
 import com.antsyferov.tfg.util.ValidationUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.collections.List
@@ -26,9 +25,13 @@ class MainViewModel @Inject constructor(
 
     val fileUriFlow = MutableStateFlow<Uri?>(null)
     val userFlow = MutableStateFlow(User(null, null, null, null, null))
-    fun getPublications(): Flow<ResultOf<List<Publication>>> {
-        return publicationsListUseCase.getPublications()
-    }
+
+    val publicationsFlow: StateFlow<ResultOf<List<Publication>>> = publicationsListUseCase.getPublications().stateIn(
+        scope = viewModelScope,
+        initialValue = ResultOf.Loading,
+        started = SharingStarted.WhileSubscribed(5000)
+    )
+
 
     fun getArticles(publicationId: String): Flow<ResultOf<List<Article>>> {
         return articlesUseCase.getArticles(publicationId)

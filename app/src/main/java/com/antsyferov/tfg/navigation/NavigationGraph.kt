@@ -65,9 +65,9 @@ fun NavigationGraph(
 
         ) }
         composable(Screen.PublicationsList.route) {
-            val result by viewModel.getPublications().collectAsStateWithLifecycle(
-                initialValue = ResultOf.Loading
-            )
+
+            val result by viewModel.publicationsFlow.collectAsStateWithLifecycle()
+
             PublicationsList(
                 modifier = Modifier,
                 result = result,
