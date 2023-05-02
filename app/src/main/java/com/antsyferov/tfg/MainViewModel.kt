@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.antsyferov.tfg.ui.models.Article
 import com.antsyferov.tfg.ui.models.Publication
 import com.antsyferov.tfg.ui.models.User
+import com.antsyferov.tfg.ui.models.UserRole
 import com.antsyferov.tfg.use_cases.ArticlesUseCase
 import com.antsyferov.tfg.use_cases.ProfileUseCase
 import com.antsyferov.tfg.use_cases.PublicationsListUseCase
@@ -32,6 +33,9 @@ class MainViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000)
     )
 
+    fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
+        return profileUseCase.getUserRole(userId)
+    }
 
     fun getArticles(publicationId: String): Flow<ResultOf<List<Article>>> {
         return articlesUseCase.getArticles(publicationId)

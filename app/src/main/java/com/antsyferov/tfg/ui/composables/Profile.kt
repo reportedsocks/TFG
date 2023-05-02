@@ -19,11 +19,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.antsyferov.tfg.ui.models.User
+import com.antsyferov.tfg.ui.models.UserRole
 import com.antsyferov.tfg.ui.theme.Purple200
+import com.antsyferov.tfg.util.ResultOf
 
 @Composable
 fun Profile(
     user: User,
+    userRole: ResultOf<UserRole>,
     onSignOutCallback: () -> Unit,
     onDeleteAccountCallback: () -> Unit
 ) {
@@ -66,6 +69,14 @@ fun Profile(
 
         if (!user.phoneNumber.isNullOrEmpty()) {
             ProfileField(title = "Phone:" , value = user.phoneNumber)
+        }
+
+        if (userRole is ResultOf.Success) {
+            ProfileField(title = "Role:" , value = when(userRole.data) {
+                UserRole.AUTHOR -> "Author"
+                UserRole.REVIEWER -> "Reviewer"
+                else -> "Admin"
+            })
         }
 
         Spacer(modifier = Modifier.weight(1f))

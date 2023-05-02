@@ -51,19 +51,24 @@ fun NavigationGraph(
     }
 
     NavHost(navController, startDestination = Screen.PublicationsList.route, Modifier.padding(innerPadding)) {
-        composable(Screen.Profile.route) { Profile(
-            user,
-            onSignOutCallback = {
-                authUI.signOut(activity)
-                    .addOnCompleteListener { recreate(activity) }
 
-            },
-            onDeleteAccountCallback = {
-                authUI.delete(activity)
-                    .addOnCompleteListener { recreate(activity) }
-            }
+        composable(Screen.Profile.route) {
+            val role by viewModel.getUserRole(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+            Profile(
+                user,
+                role,
+                onSignOutCallback = {
+                    authUI.signOut(activity)
+                        .addOnCompleteListener { recreate(activity) }
 
-        ) }
+                },
+                onDeleteAccountCallback = {
+                    authUI.delete(activity)
+                        .addOnCompleteListener { recreate(activity) }
+                }
+
+            )
+        }
         composable(Screen.PublicationsList.route) {
 
             val result by viewModel.publicationsFlow.collectAsStateWithLifecycle()

@@ -142,6 +142,20 @@ class FirebaseDataSource @Inject constructor(
 
     }
 
+    override fun getUserRole(userId: String): Flow<ResultOf<Int>> = callbackFlow {
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { snapshot ->
+                snapshot.toObject<User>()?.role?.let {
+                    trySend(ResultOf.Success(it)).onFailure { Log.d(TAG, it.toString()) }
+                }
+            }
+            .addOnFailureListener { e ->
+                trySend(ResultOf.Failure(e)).onFailure { Log.d(TAG, it.toString()) }
+            }
+
+        awaitClose()
+    }
+
     override suspend fun addArticle(publicationId: String, article: Article): ResultOf<String> = suspendCoroutine { cont ->
 
         var articleId = ""
@@ -245,7 +259,7 @@ class FirebaseDataSource @Inject constructor(
         }
     }
 
-    override suspend fun addUser(userId: String): ResultOf<Unit> = suspendCoroutine{ cont ->
+    override suspend fun addUser(userId: String): ResultOf<Unit> = suspendCoroutine { cont ->
         db.collection("users").document(userId).set(
             emptyMap<String, String>(),
             SetOptions.merge()

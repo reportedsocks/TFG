@@ -2,7 +2,11 @@ package com.antsyferov.tfg.use_cases
 
 import android.net.Uri
 import com.antsyferov.tfg.data.DataSource
+import com.antsyferov.tfg.ui.models.UserRole
 import com.antsyferov.tfg.util.ResultOf
+import com.antsyferov.tfg.util.transform
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ProfileUseCaseImpl @Inject constructor(
@@ -43,6 +47,19 @@ class ProfileUseCaseImpl @Inject constructor(
 
     override suspend fun addUser(userId: String): ResultOf<Unit> {
         return dataSource.addUser(userId)
+    }
+
+    override fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
+        return dataSource.getUserRole(userId).map {result ->
+            result.transform {
+                when(this) {
+                    0 -> UserRole.AUTHOR
+                    1 -> UserRole.REVIEWER
+                    2 -> UserRole.ADMIN
+                    else -> UserRole.AUTHOR
+                }
+            }
+        }
     }
 
 
