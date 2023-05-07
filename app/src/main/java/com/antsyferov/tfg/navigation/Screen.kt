@@ -34,4 +34,10 @@ sealed class Screen(
     )
 
     object EditProfile: Screen("editProfile", R.string.edit_profile_title)
+
+    object ArticleView: Screen(
+        "article_view/",
+        R.string.article_view_title,
+        param = "article_id"
+    )
 }

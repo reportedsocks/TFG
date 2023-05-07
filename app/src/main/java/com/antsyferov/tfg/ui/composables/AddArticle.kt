@@ -1,13 +1,14 @@
 package com.antsyferov.tfg.ui.composables
 
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -42,9 +43,21 @@ fun AddArticle(
 
             if (isPDFSelected) {
                 Text(
-                    text = pdfName ?: "",
+                    text = "Selected file:",
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.h6,
                     modifier = Modifier
-                        .padding(vertical = 4.dp, horizontal = 16.dp)
+                        .padding(vertical = 8.dp)
+                        .fillMaxWidth()
+                )
+                Text(
+                    text = pdfName ?: "",
+                    maxLines = 1,
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .padding(vertical = 4.dp)
+                        .fillMaxWidth()
                 )
             }
 
@@ -66,7 +79,7 @@ fun AddArticle(
 
             Button(
                 onClick = { onSaveButtonClick.invoke(title) },
-                enabled = isPDFSelected && !shouldShowLoader,
+                enabled = isPDFSelected && !shouldShowLoader && title.isNotEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()
             ) {

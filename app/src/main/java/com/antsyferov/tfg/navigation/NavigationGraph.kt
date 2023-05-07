@@ -89,7 +89,7 @@ fun NavigationGraph(
             ArticlesList(
                 modifier = Modifier,
                 result = result,
-                onNavToArticle = {},
+                onNavToArticle = { navController.navigate(Screen.ArticleView.cleanRoute + it) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
         }
@@ -105,7 +105,7 @@ fun NavigationGraph(
             ArticlesList(
                 modifier = Modifier,
                 result = result,
-                onNavToArticle = {},
+                onNavToArticle = { navController.navigate(Screen.ArticleView.cleanRoute + it) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
         }
@@ -141,6 +141,14 @@ fun NavigationGraph(
                 },
                 onOpenFile = { filePickerLauncher.launch("application/pdf") }
             )
+        }
+
+        composable(
+            Screen.ArticleView.route,
+            arguments = listOf(navArgument(Screen.ArticleView.param ?: "") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val articleId = backStackEntry.arguments?.getString(Screen.ArticleView.param) ?: ""
+            ArticleView(articleId)
         }
 
         composable(Screen.EditProfile.route) {
