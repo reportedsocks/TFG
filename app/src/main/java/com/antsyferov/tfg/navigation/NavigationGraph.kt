@@ -121,12 +121,12 @@ fun NavigationGraph(
                 modifier = Modifier,
                 pdfName = uri?.let { queryName(it, activity.contentResolver) },
                 shouldShowLoader = shouldShowLoader,
-                onSaveButtonClick = { title ->
+                onSaveButtonClick = { title, characterCount ->
                     coroutineScope.launch {
                         shouldShowLoader = true
                         val result =
                             uri?.let {
-                                viewModel.addArticle(publicationId, title, user, it)
+                                viewModel.addArticle(publicationId, title, characterCount, user, it)
                             }
                         if (result is ResultOf.Success) {
                             viewModel.fileUriFlow.value = null

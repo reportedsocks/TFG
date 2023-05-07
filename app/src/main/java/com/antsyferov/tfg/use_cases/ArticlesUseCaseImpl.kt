@@ -62,6 +62,7 @@ class ArticlesUseCaseImpl @Inject constructor(
     override suspend fun addArticle(
         publicationId: String,
         title: String,
+        characterCount: Int,
         user: User,
         uri: Uri
     ): ResultOf<Unit> {

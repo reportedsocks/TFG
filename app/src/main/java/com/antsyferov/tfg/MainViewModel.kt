@@ -49,8 +49,8 @@ class MainViewModel @Inject constructor(
         return articlesUseCase.getArticlesByUser(userId)
     }
 
-    suspend fun addArticle(publicationId: String, title: String, user: User, uri: Uri): ResultOf<Unit> {
-        return articlesUseCase.addArticle(publicationId, title, user, uri)
+    suspend fun addArticle(publicationId: String, title: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit> {
+        return articlesUseCase.addArticle(publicationId, title, characterCount, user, uri)
     }
 
     fun addUser(userId: String) {

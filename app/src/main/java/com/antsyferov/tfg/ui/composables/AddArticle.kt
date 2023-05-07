@@ -1,6 +1,7 @@
 package com.antsyferov.tfg.ui.composables
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -8,6 +9,7 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
@@ -16,7 +18,7 @@ fun AddArticle(
     modifier: Modifier,
     pdfName: String?,
     shouldShowLoader: Boolean,
-    onSaveButtonClick: (String) -> Unit,
+    onSaveButtonClick: (String, Int) -> Unit,
     onOpenFile: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -31,6 +33,7 @@ fun AddArticle(
         ) {
 
             var title by remember { mutableStateOf("") }
+            var charCount by remember { mutableStateOf(0) }
 
             val isPDFSelected = !pdfName.isNullOrEmpty()
 
@@ -41,13 +44,23 @@ fun AddArticle(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            TextField(
+                value = charCount.toString(),
+                onValueChange = { charCount = it.toIntOrNull() ?: 0 },
+                label = { Text("Number of characters") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            )
+
             if (isPDFSelected) {
                 Text(
                     text = "Selected file:",
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.h6,
                     modifier = Modifier
-                        .padding(vertical = 8.dp)
+                        .padding(top = 16.dp)
                         .fillMaxWidth()
                 )
                 Text(
@@ -56,7 +69,7 @@ fun AddArticle(
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Start,
                     modifier = Modifier
-                        .padding(vertical = 4.dp)
+                        .padding(top = 8.dp)
                         .fillMaxWidth()
                 )
             }
@@ -78,8 +91,8 @@ fun AddArticle(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onSaveButtonClick.invoke(title) },
-                enabled = isPDFSelected && !shouldShowLoader && title.isNotEmpty(),
+                onClick = { onSaveButtonClick.invoke(title, 0) },
+                enabled = isPDFSelected && !shouldShowLoader && title.isNotEmpty() && charCount != 0,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
