@@ -29,7 +29,7 @@ import com.antsyferov.tfg.util.ResultOf
 fun ArticlesList(
     modifier: Modifier,
     result: ResultOf<List<Article>>,
-    onNavToArticle: (String) -> Unit,
+    onNavToArticle: (String, String) -> Unit,
     showErrorSnackBar: (Throwable?) -> Unit
 ) {
 
@@ -70,13 +70,13 @@ fun ArticlesList(
 fun Article(
     modifier: Modifier,
     article: Article,
-    onNavToArticle: (String) -> Unit
+    onNavToArticle: (String, String) -> Unit
 ) {
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colors.primary,
         modifier = modifier.clickable {
-           onNavToArticle.invoke(article.id)
+           onNavToArticle.invoke(article.id, article.authorId)
         }
     ) {
         Column(

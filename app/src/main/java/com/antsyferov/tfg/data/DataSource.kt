@@ -14,6 +14,8 @@ interface DataSource {
 
     fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>>
 
+    fun getArticleById(articleId: String, authorId: String): Flow<ResultOf<List<Article>>>
+
     fun getUserRole(userId: String): Flow<ResultOf<Int>>
 
     suspend fun addArticle(publicationId: String, article: Article): ResultOf<String>

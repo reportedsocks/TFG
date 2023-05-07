@@ -23,7 +23,8 @@ class ArticlesUseCaseImpl @Inject constructor(
                 map { firebaseArticle ->
                     Article(
                         firebaseArticle.id ?: "",
-                        firebaseArticle.title
+                        firebaseArticle.title,
+                        firebaseArticle.author
                     )
                 }
             }
@@ -36,7 +37,22 @@ class ArticlesUseCaseImpl @Inject constructor(
                 map { firebaseArticle ->
                     Article(
                         firebaseArticle.id ?: "",
-                        firebaseArticle.title
+                        firebaseArticle.title,
+                        firebaseArticle.author
+                    )
+                }
+            }
+        }
+    }
+
+    override fun getArticleById(articleId: String, userId: String): Flow<ResultOf<List<Article>>> {
+        return dataSource.getArticleById(articleId, userId).map { result ->
+            result.transform {
+                map { firebaseArticle ->
+                    Article(
+                        firebaseArticle.id ?: "",
+                        firebaseArticle.title,
+                        firebaseArticle.author
                     )
                 }
             }

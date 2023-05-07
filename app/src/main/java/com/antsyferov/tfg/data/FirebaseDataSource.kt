@@ -34,25 +34,6 @@ class FirebaseDataSource @Inject constructor(
     private val TAG = "FIREBASE_DB"
     private val TAG_S = "FIREBASE_STORAGE"
 
-    /*val publication = hashMapOf(
-        "title" to "Test publication",
-        "description" to "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        "review_date" to "20-04-2023",
-        "completion_date" to "20-05-2023"
-    )
-
-    fun addPublication() {
-        db.collection("publications")
-            .add(publication)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-            }
-            .addOnFailureListener { e ->
-                Log.w(TAG, "Error adding document", e)
-            }
-
-    }*/
-
     override fun getPublications(): Flow<ResultOf<List<Publication>>> = callbackFlow {
 
         val registration = db.collection("publications")
@@ -140,6 +121,41 @@ class FirebaseDataSource @Inject constructor(
 
         awaitClose()
 
+    }
+
+    override fun getArticleById(articleId: String, authorId: String): Flow<ResultOf<List<Article>>> = callbackFlow {
+        db.runTransaction { transaction ->
+            val articles = mutableListOf<Article>()
+            val userRef = db.collection("users").document(authorId)
+            val userSnapshot = transaction.get(userRef)
+
+            val user = userSnapshot.toObject<User>()
+
+            for (article in user?.articles ?: emptyList()) {
+
+                val values = article.split("&sep")
+                val publicationId = values[0]
+                val articleIdFromUser = values[1]
+
+                if (articleIdFromUser == articleId) {
+                    val articleRef = db.collection("publications/$publicationId/articles").document(articleId)
+                    val articleSnapshot = transaction.get(articleRef)
+
+                    articleSnapshot.toObject<Article>()?.apply { id = articleId }?.let {
+                        articles.add(it)
+                    }
+                }
+            }
+
+            articles
+
+        }.addOnSuccessListener { articles ->
+            trySend(ResultOf.Success(articles)).onFailure { Log.d(TAG, it.toString()) }
+        }.addOnFailureListener { e ->
+            trySend(ResultOf.Failure(e)).onFailure { Log.d(TAG, it.toString()) }
+        }
+
+        awaitClose()
     }
 
     override fun getUserRole(userId: String): Flow<ResultOf<Int>> = callbackFlow {

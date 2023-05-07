@@ -1,8 +1,6 @@
 package com.antsyferov.tfg
 
-import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,7 +30,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -143,7 +140,7 @@ class MainActivity : ComponentActivity() {
                             } else null,
                             actions = {
                                 if (currentRoute == Screen.Profile.route) {
-                                    IconButton(onClick = { navController.navigate(Screen.EditProfile.route) }) {
+                                    IconButton(onClick = { navController.navigate(Screen.EditProfile.getNavDirection()) }) {
                                         Icon(
                                             imageVector = Icons.Filled.Edit,
                                             contentDescription = "Edit"
@@ -157,11 +154,11 @@ class MainActivity : ComponentActivity() {
                         BottomNavigation {
                             homeScreens.forEach { screen ->
                                 BottomNavigationItem(
-                                    icon = { Icon(screen.icon ?: Icons.Filled.List, contentDescription = getString(screen.title)) },
+                                    icon = { Icon(iconMap[screen] ?: Icons.Filled.List, contentDescription = getString(screen.title)) },
                                     label = { Text(stringResource(screen.title)) },
                                     selected = isSubSection(screen, currentRoute),
                                     onClick = {
-                                        navController.navigate(screen.route) {
+                                        navController.navigate(screen.getNavDirection()) {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
                                             }
@@ -176,8 +173,8 @@ class MainActivity : ComponentActivity() {
                     floatingActionButton = {
                         if (Screen.ArticlesList.route == currentRoute) {
                             FloatingActionButton(onClick = {
-                                val publicationId = navController.currentBackStackEntry?.arguments?.getString(Screen.ArticlesList.param)
-                                navController.navigate(Screen.AddArticle.cleanRoute + publicationId)
+                                val publicationId = navController.currentBackStackEntry?.arguments?.getString(Screen.ArticlesList.params.first())
+                                navController.navigate(Screen.AddArticle.getNavDirection(publicationId ?: ""))
                             }) {
                                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                             }

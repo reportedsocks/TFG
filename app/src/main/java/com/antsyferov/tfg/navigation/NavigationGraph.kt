@@ -78,7 +78,7 @@ fun NavigationGraph(
                 result = result,
                 showErrorSnackBar = { e -> showErrorSnackBar(e) },
                 onNavToArticles = { publicationId ->
-                    navController.navigate(Screen.ArticlesList.cleanRoute + publicationId)
+                    navController.navigate(Screen.ArticlesList.getNavDirection(publicationId))
                 }
             )
         }
@@ -89,32 +89,32 @@ fun NavigationGraph(
             ArticlesList(
                 modifier = Modifier,
                 result = result,
-                onNavToArticle = { navController.navigate(Screen.ArticleView.cleanRoute + it) },
+                onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId)) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
         }
 
         composable(
             Screen.ArticlesList.route,
-            arguments = listOf(navArgument(Screen.ArticlesList.param ?: "") { type = NavType.StringType })
+            arguments = listOf(navArgument(Screen.ArticlesList.params.first()) { type = NavType.StringType })
         ) { backStackEntry ->
-            val publicationId = backStackEntry.arguments?.getString(Screen.ArticlesList.param) ?: ""
+            val publicationId = backStackEntry.arguments?.getString(Screen.ArticlesList.params.first()) ?: ""
             val result by viewModel.getArticles(publicationId).collectAsStateWithLifecycle(
                 initialValue = ResultOf.Loading
             )
             ArticlesList(
                 modifier = Modifier,
                 result = result,
-                onNavToArticle = { navController.navigate(Screen.ArticleView.cleanRoute + it) },
+                onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId)) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
         }
 
         composable(
             Screen.AddArticle.route,
-            arguments = listOf(navArgument(Screen.AddArticle.param ?: "") { type = NavType.StringType })
+            arguments = listOf(navArgument(Screen.AddArticle.params.first()) { type = NavType.StringType })
         ) { backStackEntry ->
-            val publicationId = backStackEntry.arguments?.getString(Screen.AddArticle.param) ?: ""
+            val publicationId = backStackEntry.arguments?.getString(Screen.AddArticle.params.first()) ?: ""
             val uri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
             var shouldShowLoader by remember { mutableStateOf(false) }
             AddArticle(
@@ -145,10 +145,17 @@ fun NavigationGraph(
 
         composable(
             Screen.ArticleView.route,
-            arguments = listOf(navArgument(Screen.ArticleView.param ?: "") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument(Screen.ArticleView.params.first()) { type = NavType.StringType },
+                navArgument(Screen.ArticleView.params[1]) { type = NavType.StringType }
+            )
         ) { backStackEntry ->
-            val articleId = backStackEntry.arguments?.getString(Screen.ArticleView.param) ?: ""
-            ArticleView(articleId)
+            val articleId = backStackEntry.arguments?.getString(Screen.ArticleView.params.first()) ?: ""
+            val authorId = backStackEntry.arguments?.getString(Screen.ArticleView.params[1]) ?: ""
+            val article by viewModel.getArticle(articleId, authorId).collectAsStateWithLifecycle(
+                initialValue = ResultOf.Loading
+            )
+            ArticleView(articleId, authorId, article)
         }
 
         composable(Screen.EditProfile.route) {
