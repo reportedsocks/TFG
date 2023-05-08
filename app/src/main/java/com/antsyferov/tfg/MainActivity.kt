@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                 user?.phoneNumber,
                 user?.photoUrl
             )
-            viewModel.addUser(user?.uid ?: "")
+            viewModel.addUser(user?.uid ?: "", user?.displayName ?: "", user?.photoUrl?.toString() ?: "")
             initUi()
         } else {
             // Sign in failed. If response is null the user canceled the

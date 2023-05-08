@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.antsyferov.tfg.ui.models.Article
+import com.antsyferov.tfg.ui.models.Author
 import com.antsyferov.tfg.ui.models.Publication
 import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.ui.models.UserRole
@@ -53,6 +54,10 @@ class MainViewModel @Inject constructor(
         return articlesUseCase.getArticlesByUser(userId)
     }
 
+    fun getArticleAuthor(userId: String): Flow<ResultOf<Author>> {
+        return profileUseCase.getAuthor(userId)
+    }
+
     fun getPdfDownloadUrl(articleId: String): Flow<ResultOf<Uri>> {
         return articlesUseCase.getPdfDownloadUrl(articleId)
     }
@@ -61,9 +66,9 @@ class MainViewModel @Inject constructor(
         return articlesUseCase.addArticle(publicationId, title, description, characterCount, user, uri)
     }
 
-    fun addUser(userId: String) {
+    fun addUser(userId: String, name: String, photoUrl: String) {
         viewModelScope.launch {
-            profileUseCase.addUser(userId)
+            profileUseCase.addUser(userId, name, photoUrl)
         }
     }
 

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Loader(modifier: Modifier) {
+fun Loader(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
         CircularProgressIndicator(
             color = MaterialTheme.colors.secondary,

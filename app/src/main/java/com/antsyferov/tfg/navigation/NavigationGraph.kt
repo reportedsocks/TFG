@@ -1,6 +1,7 @@
 package com.antsyferov.tfg.navigation
 
 import android.content.ContentResolver
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat.recreate
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -27,6 +29,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun NavigationGraph(
@@ -164,7 +167,20 @@ fun NavigationGraph(
                 initialValue = ResultOf.Loading
             )
 
-            ArticleView(articleId, authorId, article, downloadUri)
+            val author by viewModel.getArticleAuthor(authorId).collectAsStateWithLifecycle(
+                initialValue = ResultOf.Loading
+            )
+
+            ArticleView(
+                articleResult = article,
+                downloadUri = downloadUri,
+                authorResult = author,
+                showErrorSnackBar = { e -> showErrorSnackBar(e) },
+                openBrowser = { uri ->
+                    val i = Intent(Intent.ACTION_VIEW).apply { data = uri }
+                    activity.startActivity(i)
+                }
+            )
         }
 
         composable(Screen.EditProfile.route) {

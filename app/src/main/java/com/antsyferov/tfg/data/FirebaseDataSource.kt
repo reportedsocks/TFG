@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
 import com.antsyferov.tfg.data.models.Article
+import com.antsyferov.tfg.data.models.Author
 import com.antsyferov.tfg.data.models.Publication
 import com.antsyferov.tfg.data.models.User
 import com.antsyferov.tfg.util.ResultOf
@@ -201,6 +202,20 @@ class FirebaseDataSource @Inject constructor(
         awaitClose()
     }
 
+    override fun getAuthor(userId: String): Flow<ResultOf<Author>> = callbackFlow {
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { snapshot ->
+                snapshot.toObject<Author>()?.let {
+                    trySend(ResultOf.Success(it)).onFailure { Log.d(TAG, it.toString()) }
+                }
+            }
+            .addOnFailureListener { e ->
+                trySend(ResultOf.Failure(e)).onFailure { Log.d(TAG, it.toString()) }
+            }
+
+        awaitClose()
+    }
+
     override suspend fun addArticle(publicationId: String, article: Article): ResultOf<String> = suspendCoroutine { cont ->
 
         var articleId = ""
@@ -279,9 +294,26 @@ class FirebaseDataSource @Inject constructor(
                     avatar?.let { photoUri = it }
                 }
             ).addOnCompleteListener { task ->
-                if (task.isSuccessful)
-                    cont.resume(ResultOf.Success(Unit))
-                else
+                if (task.isSuccessful) {
+
+                    val changesMap = mutableMapOf<String, String>()
+                    name?.let {
+                        changesMap.put("name", name)
+                    }
+                    avatar?.let {
+                        changesMap.put("photoUrl", it.toString())
+                    }
+
+                    db.collection("users").document(auth.uid ?: "").set(
+                        changesMap,
+                        SetOptions.merge()
+                    ).addOnSuccessListener {
+                        cont.resume(ResultOf.Success(Unit))
+                    }.addOnFailureListener {
+                        cont.resume(ResultOf.Failure(it))
+                    }
+
+                } else
                     cont.resume(ResultOf.Failure(task.exception))
             }
         } else {
@@ -304,9 +336,12 @@ class FirebaseDataSource @Inject constructor(
         }
     }
 
-    override suspend fun addUser(userId: String): ResultOf<Unit> = suspendCoroutine { cont ->
+    override suspend fun addUser(userId: String, name: String, photoUrl: String): ResultOf<Unit> = suspendCoroutine { cont ->
         db.collection("users").document(userId).set(
-            emptyMap<String, String>(),
+            mapOf(
+                "name" to name,
+                "photoUrl" to photoUrl
+            ),
             SetOptions.merge()
         ).apply {
             addOnSuccessListener {
