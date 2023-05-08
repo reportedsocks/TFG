@@ -27,6 +27,7 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.rajat.pdfviewer.PdfViewerActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -179,6 +180,17 @@ fun NavigationGraph(
                 openBrowser = { uri ->
                     val i = Intent(Intent.ACTION_VIEW).apply { data = uri }
                     activity.startActivity(i)
+                },
+                openViewer = { uri, title ->
+                    activity.startActivity(
+                        PdfViewerActivity.launchPdfFromUrl(
+                            activity,
+                            uri.toString(),
+                            title,
+                            "",
+                            enableDownload = false
+                        )
+                    )
                 }
             )
         }

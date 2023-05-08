@@ -41,7 +41,8 @@ fun ArticleView(
     downloadUri: ResultOf<Uri>,
     authorResult: ResultOf<Author>,
     showErrorSnackBar: (Throwable?) -> Unit,
-    openBrowser: (Uri) -> Unit
+    openBrowser: (Uri) -> Unit,
+    openViewer: (Uri, String) -> Unit
 ) {
 
     if (articleResult is ResultOf.Loading || downloadUri is ResultOf.Loading || authorResult is ResultOf.Loading) {
@@ -149,6 +150,18 @@ fun ArticleView(
 
 
             Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = { openViewer.invoke(downloadUri.data, article.title.take(20)) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "View PDF",
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = { openBrowser.invoke(downloadUri.data) },
