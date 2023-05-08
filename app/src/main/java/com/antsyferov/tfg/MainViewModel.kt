@@ -53,6 +53,10 @@ class MainViewModel @Inject constructor(
         return articlesUseCase.getArticlesByUser(userId)
     }
 
+    fun getPdfDownloadUrl(articleId: String): Flow<ResultOf<Uri>> {
+        return articlesUseCase.getPdfDownloadUrl(articleId)
+    }
+
     suspend fun addArticle(publicationId: String, title: String, description: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit> {
         return articlesUseCase.addArticle(publicationId, title, description, characterCount, user, uri)
     }

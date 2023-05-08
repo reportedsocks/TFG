@@ -16,6 +16,8 @@ interface ArticlesUseCase {
 
     fun getArticleByPublicationId(articleId: String, publicationId: String): Flow<ResultOf<Article>>
 
+    fun getPdfDownloadUrl(articleId: String): Flow<ResultOf<Uri>>
+
     suspend fun addArticle(publicationId: String, title: String, description: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit>
 
 }

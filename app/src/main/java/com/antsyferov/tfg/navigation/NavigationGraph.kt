@@ -160,7 +160,11 @@ fun NavigationGraph(
             else
                 viewModel.getArticle(articleId, authorId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
 
-            ArticleView(articleId, authorId, article)
+            val downloadUri by viewModel.getPdfDownloadUrl(articleId).collectAsStateWithLifecycle(
+                initialValue = ResultOf.Loading
+            )
+
+            ArticleView(articleId, authorId, article, downloadUri)
         }
 
         composable(Screen.EditProfile.route) {

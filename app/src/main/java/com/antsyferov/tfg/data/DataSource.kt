@@ -18,6 +18,8 @@ interface DataSource {
 
     fun getArticleByPublicationId(articleId: String, publicationId: String): Flow<ResultOf<Article>>
 
+    fun getPdfDownloadUrl(articleId: String): Flow<ResultOf<Uri>>
+
     fun getUserRole(userId: String): Flow<ResultOf<Int>>
 
     suspend fun addArticle(publicationId: String, article: Article): ResultOf<String>

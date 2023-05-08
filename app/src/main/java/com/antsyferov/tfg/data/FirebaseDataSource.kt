@@ -175,6 +175,18 @@ class FirebaseDataSource @Inject constructor(
         awaitClose()
     }
 
+    override fun getPdfDownloadUrl(articleId: String): Flow<ResultOf<Uri>> = callbackFlow {
+        storage.reference.child("articles/$articleId.pdf").downloadUrl
+            .addOnSuccessListener {
+                trySend(ResultOf.Success(it)).onFailure { Log.d(TAG, it.toString()) }
+            }
+            .addOnFailureListener { e ->
+                trySend(ResultOf.Failure(e)).onFailure { Log.d(TAG, it.toString()) }
+            }
+
+        awaitClose()
+    }
+
     override fun getUserRole(userId: String): Flow<ResultOf<Int>> = callbackFlow {
         db.collection("users").document(userId).get()
             .addOnSuccessListener { snapshot ->

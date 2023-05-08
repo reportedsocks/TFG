@@ -80,6 +80,10 @@ class ArticlesUseCaseImpl @Inject constructor(
         }
     }
 
+    override fun getPdfDownloadUrl(articleId: String): Flow<ResultOf<Uri>> {
+        return dataSource.getPdfDownloadUrl(articleId)
+    }
+
     override suspend fun addArticle(
         publicationId: String,
         title: String,
