@@ -18,7 +18,7 @@ fun AddArticle(
     modifier: Modifier,
     pdfName: String?,
     shouldShowLoader: Boolean,
-    onSaveButtonClick: (String, Int) -> Unit,
+    onSaveButtonClick: (String, String, Int) -> Unit,
     onOpenFile: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -33,6 +33,7 @@ fun AddArticle(
         ) {
 
             var title by remember { mutableStateOf("") }
+            var description by remember { mutableStateOf("") }
             var charCount by remember { mutableStateOf(0) }
 
             val isPDFSelected = !pdfName.isNullOrEmpty()
@@ -40,14 +41,26 @@ fun AddArticle(
             TextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title") },
+                label = { Text("Title *") },
+                maxLines = 1,
                 modifier = Modifier.fillMaxWidth()
+            )
+
+            TextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                maxLines = 5,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
             )
 
             TextField(
                 value = charCount.toString(),
                 onValueChange = { charCount = it.toIntOrNull() ?: 0 },
-                label = { Text("Number of characters") },
+                label = { Text("Number of characters *") },
+                maxLines = 1,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,7 +104,7 @@ fun AddArticle(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onSaveButtonClick.invoke(title, 0) },
+                onClick = { onSaveButtonClick.invoke(title, description, charCount) },
                 enabled = isPDFSelected && !shouldShowLoader && title.isNotEmpty() && charCount != 0,
                 modifier = Modifier
                     .fillMaxWidth()

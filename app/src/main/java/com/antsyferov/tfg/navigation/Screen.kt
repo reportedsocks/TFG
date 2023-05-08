@@ -15,6 +15,10 @@ sealed class Screen(
     vararg val params: String
 ) {
 
+    companion object {
+        const val STUB = "stub"
+    }
+
     val route get() =
         StringBuilder().apply {
             append(root)
@@ -62,6 +66,6 @@ sealed class Screen(
     object ArticleView: Screen(
         root = "article_view",
         title = R.string.article_view_title,
-        params = arrayOf("article_id", "author_id")
+        params = arrayOf("article_id", "author_id", "publication_id")
     )
 }

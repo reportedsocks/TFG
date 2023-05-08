@@ -89,7 +89,7 @@ fun NavigationGraph(
             ArticlesList(
                 modifier = Modifier,
                 result = result,
-                onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId)) },
+                onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId, Screen.STUB)) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
         }
@@ -105,7 +105,7 @@ fun NavigationGraph(
             ArticlesList(
                 modifier = Modifier,
                 result = result,
-                onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId)) },
+                onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId, publicationId)) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
         }
@@ -121,12 +121,12 @@ fun NavigationGraph(
                 modifier = Modifier,
                 pdfName = uri?.let { queryName(it, activity.contentResolver) },
                 shouldShowLoader = shouldShowLoader,
-                onSaveButtonClick = { title, characterCount ->
+                onSaveButtonClick = { title, description, characterCount ->
                     coroutineScope.launch {
                         shouldShowLoader = true
                         val result =
                             uri?.let {
-                                viewModel.addArticle(publicationId, title, characterCount, user, it)
+                                viewModel.addArticle(publicationId, title, description, characterCount, user, it)
                             }
                         if (result is ResultOf.Success) {
                             viewModel.fileUriFlow.value = null
@@ -147,14 +147,19 @@ fun NavigationGraph(
             Screen.ArticleView.route,
             arguments = listOf(
                 navArgument(Screen.ArticleView.params.first()) { type = NavType.StringType },
-                navArgument(Screen.ArticleView.params[1]) { type = NavType.StringType }
+                navArgument(Screen.ArticleView.params[1]) { type = NavType.StringType },
+                navArgument(Screen.ArticleView.params[2]) { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val articleId = backStackEntry.arguments?.getString(Screen.ArticleView.params.first()) ?: ""
             val authorId = backStackEntry.arguments?.getString(Screen.ArticleView.params[1]) ?: ""
-            val article by viewModel.getArticle(articleId, authorId).collectAsStateWithLifecycle(
-                initialValue = ResultOf.Loading
-            )
+            val publicationId = backStackEntry.arguments?.getString(Screen.ArticleView.params[2]) ?: ""
+
+            val article by if(publicationId != Screen.STUB)
+                viewModel.getArticleFromPublication(articleId, publicationId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+            else
+                viewModel.getArticle(articleId, authorId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+
             ArticleView(articleId, authorId, article)
         }
 

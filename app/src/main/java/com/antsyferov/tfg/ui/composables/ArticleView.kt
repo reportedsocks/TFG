@@ -9,7 +9,7 @@ import com.antsyferov.tfg.util.ResultOf
 fun ArticleView(
     articleId: String,
     authorId: String,
-    result: ResultOf<List<Article>>
+    result: ResultOf<Article>
 ) {
     Text(text = "Article View: $articleId, $authorId, $result")
 }

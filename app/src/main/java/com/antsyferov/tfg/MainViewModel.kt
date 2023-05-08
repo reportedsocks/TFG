@@ -41,16 +41,20 @@ class MainViewModel @Inject constructor(
         return articlesUseCase.getArticles(publicationId)
     }
 
-    fun getArticle(articleId: String, authorId: String): Flow<ResultOf<List<Article>>> {
-        return articlesUseCase.getArticleById(articleId, authorId)
+    fun getArticle(articleId: String, authorId: String): Flow<ResultOf<Article>> {
+        return articlesUseCase.getArticleByAuthorId(articleId, authorId)
+    }
+
+    fun getArticleFromPublication(articleId: String, publicationId: String): Flow<ResultOf<Article>> {
+        return articlesUseCase.getArticleByPublicationId(articleId, publicationId)
     }
 
     fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>> {
         return articlesUseCase.getArticlesByUser(userId)
     }
 
-    suspend fun addArticle(publicationId: String, title: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit> {
-        return articlesUseCase.addArticle(publicationId, title, characterCount, user, uri)
+    suspend fun addArticle(publicationId: String, title: String, description: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit> {
+        return articlesUseCase.addArticle(publicationId, title, description, characterCount, user, uri)
     }
 
     fun addUser(userId: String) {

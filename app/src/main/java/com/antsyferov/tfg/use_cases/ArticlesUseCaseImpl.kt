@@ -1,15 +1,11 @@
 package com.antsyferov.tfg.use_cases
 
-import android.content.ContentResolver
 import android.net.Uri
-import android.util.Log
 import com.antsyferov.tfg.data.DataSource
 import com.antsyferov.tfg.ui.models.Article
 import com.antsyferov.tfg.ui.models.User
 import com.antsyferov.tfg.util.ResultOf
 import com.antsyferov.tfg.util.transform
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -24,7 +20,10 @@ class ArticlesUseCaseImpl @Inject constructor(
                     Article(
                         firebaseArticle.id ?: "",
                         firebaseArticle.title,
-                        firebaseArticle.author
+                        firebaseArticle.description,
+                        firebaseArticle.characterCount,
+                        firebaseArticle.author,
+                        firebaseArticle.createdAt
                     )
                 }
             }
@@ -38,23 +37,45 @@ class ArticlesUseCaseImpl @Inject constructor(
                     Article(
                         firebaseArticle.id ?: "",
                         firebaseArticle.title,
-                        firebaseArticle.author
+                        firebaseArticle.description,
+                        firebaseArticle.characterCount,
+                        firebaseArticle.author,
+                        firebaseArticle.createdAt
                     )
                 }
             }
         }
     }
 
-    override fun getArticleById(articleId: String, userId: String): Flow<ResultOf<List<Article>>> {
-        return dataSource.getArticleById(articleId, userId).map { result ->
+    override fun getArticleByAuthorId(articleId: String, userId: String): Flow<ResultOf<Article>> {
+        return dataSource.getArticleByAuthorId(articleId, userId).map { result ->
             result.transform {
-                map { firebaseArticle ->
-                    Article(
-                        firebaseArticle.id ?: "",
-                        firebaseArticle.title,
-                        firebaseArticle.author
-                    )
-                }
+                Article(
+                    id ?: "",
+                    title,
+                    description,
+                    characterCount,
+                    author,
+                    createdAt
+                )
+            }
+        }
+    }
+
+    override fun getArticleByPublicationId(
+        articleId: String,
+        publicationId: String
+    ): Flow<ResultOf<Article>> {
+        return dataSource.getArticleByPublicationId(articleId, publicationId).map { result ->
+            result.transform {
+                Article(
+                    id ?: "",
+                    title,
+                    description,
+                    characterCount,
+                    author,
+                    createdAt
+                )
             }
         }
     }
@@ -62,6 +83,7 @@ class ArticlesUseCaseImpl @Inject constructor(
     override suspend fun addArticle(
         publicationId: String,
         title: String,
+        description: String,
         characterCount: Int,
         user: User,
         uri: Uri
@@ -71,7 +93,9 @@ class ArticlesUseCaseImpl @Inject constructor(
             publicationId,
             com.antsyferov.tfg.data.models.Article(
                 title = title,
-                author = user.id ?: ""
+                description = description,
+                author = user.id ?: "",
+                characterCount = characterCount
             )
         )
 

@@ -123,7 +123,7 @@ class FirebaseDataSource @Inject constructor(
 
     }
 
-    override fun getArticleById(articleId: String, authorId: String): Flow<ResultOf<List<Article>>> = callbackFlow {
+    override fun getArticleByAuthorId(articleId: String, authorId: String): Flow<ResultOf<Article>> = callbackFlow {
         db.runTransaction { transaction ->
             val articles = mutableListOf<Article>()
             val userRef = db.collection("users").document(authorId)
@@ -150,10 +150,27 @@ class FirebaseDataSource @Inject constructor(
             articles
 
         }.addOnSuccessListener { articles ->
-            trySend(ResultOf.Success(articles)).onFailure { Log.d(TAG, it.toString()) }
+            trySend(ResultOf.Success(articles.first())).onFailure { Log.d(TAG, it.toString()) }
         }.addOnFailureListener { e ->
             trySend(ResultOf.Failure(e)).onFailure { Log.d(TAG, it.toString()) }
         }
+
+        awaitClose()
+    }
+
+    override fun getArticleByPublicationId(
+        articleId: String,
+        publicationId: String
+    ): Flow<ResultOf<Article>> = callbackFlow {
+        db.collection("publications/$publicationId/articles").document(articleId).get()
+            .addOnSuccessListener { snapshot ->
+                snapshot.toObject<Article>()?.let {
+                    trySend(ResultOf.Success(it)).onFailure { Log.d(TAG, it.toString()) }
+                }
+            }
+            .addOnFailureListener { e ->
+                trySend(ResultOf.Failure(e)).onFailure { Log.d(TAG, it.toString()) }
+            }
 
         awaitClose()
     }

@@ -12,8 +12,10 @@ interface ArticlesUseCase {
 
     fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>>
 
-    fun getArticleById(articleId: String, userId: String): Flow<ResultOf<List<Article>>>
+    fun getArticleByAuthorId(articleId: String, userId: String): Flow<ResultOf<Article>>
 
-    suspend fun addArticle(publicationId: String, title: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit>
+    fun getArticleByPublicationId(articleId: String, publicationId: String): Flow<ResultOf<Article>>
+
+    suspend fun addArticle(publicationId: String, title: String, description: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit>
 
 }
