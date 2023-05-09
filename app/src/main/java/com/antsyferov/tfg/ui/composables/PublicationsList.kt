@@ -1,6 +1,5 @@
 package com.antsyferov.tfg.ui.composables
 
-import android.widget.ProgressBar
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -22,8 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.antsyferov.tfg.ui.models.Publication
-import com.antsyferov.tfg.util.ResultOf
+import com.tfg.domain.models.ui.Publication
+import com.tfg.domain.util.ResultOf
 
 @Composable
 fun PublicationsList(

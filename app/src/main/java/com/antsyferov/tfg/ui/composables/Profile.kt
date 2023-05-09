@@ -1,7 +1,6 @@
 package com.antsyferov.tfg.ui.composables
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,16 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.antsyferov.tfg.ui.models.User
-import com.antsyferov.tfg.ui.models.UserRole
+import com.tfg.domain.models.ui.User
+import com.tfg.domain.models.ui.UserRole
 import com.antsyferov.tfg.ui.theme.Purple200
-import com.antsyferov.tfg.util.ResultOf
+import com.tfg.domain.util.ResultOf
 
 @Composable
 fun Profile(
@@ -60,15 +58,15 @@ fun Profile(
 
 
         if (!user.name.isNullOrEmpty()) {
-            ProfileField(title = "Name:" , value = user.name)
+            ProfileField(title = "Name:" , value = user.name ?: "")
         }
 
         if (!user.email.isNullOrEmpty()) {
-            ProfileField(title = "Email:" , value = user.email)
+            ProfileField(title = "Email:" , value = user.email ?: "")
         }
 
         if (!user.phoneNumber.isNullOrEmpty()) {
-            ProfileField(title = "Phone:" , value = user.phoneNumber)
+            ProfileField(title = "Phone:" , value = user.phoneNumber ?: "")
         }
 
         if (userRole is ResultOf.Success) {

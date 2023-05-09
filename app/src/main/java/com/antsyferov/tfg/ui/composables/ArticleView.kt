@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
@@ -31,9 +30,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.antsyferov.tfg.R
-import com.antsyferov.tfg.ui.models.Article
-import com.antsyferov.tfg.ui.models.Author
-import com.antsyferov.tfg.util.ResultOf
+import com.tfg.domain.models.ui.Article
+import com.tfg.domain.models.ui.Author
+import com.tfg.domain.util.ResultOf
 
 @Composable
 fun ArticleView(

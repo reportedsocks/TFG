@@ -21,7 +21,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.antsyferov.tfg.navigation.*
-import com.antsyferov.tfg.ui.models.User
+import com.tfg.domain.models.ui.User
 import com.antsyferov.tfg.ui.theme.TFGTheme
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract

@@ -12,7 +12,6 @@ import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat.recreate
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,8 +20,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.antsyferov.tfg.MainViewModel
 import com.antsyferov.tfg.ui.composables.*
-import com.antsyferov.tfg.ui.models.User
-import com.antsyferov.tfg.util.ResultOf
+import com.tfg.domain.models.ui.User
+import com.tfg.domain.util.ResultOf
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
