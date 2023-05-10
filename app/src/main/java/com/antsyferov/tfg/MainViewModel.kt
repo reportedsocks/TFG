@@ -34,6 +34,12 @@ class MainViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000)
     )
 
+    val customersFlow: StateFlow<ResultOf<List<User>>> = profileUseCase.getCustomers().stateIn(
+        scope = viewModelScope,
+        initialValue = ResultOf.Loading,
+        started = SharingStarted.WhileSubscribed(5000)
+    )
+
     fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
         return profileUseCase.getUserRole(userId)
     }
@@ -66,9 +72,9 @@ class MainViewModel @Inject constructor(
         return articlesUseCase.addArticle(publicationId, title, description, characterCount, user, uri)
     }
 
-    fun addUser(userId: String, name: String, photoUrl: String) {
+    fun addUser(user: User) {
         viewModelScope.launch {
-            profileUseCase.addUser(userId, name, photoUrl)
+            profileUseCase.addUser(user)
         }
     }
 

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">TFG</string>
 
+    <string name="users_list_title">Users</string>
     <string name="profile_title">Profile</string>
     <string name="edit_profile_title">Edit Profile</string>
     <string name="publications_list_title">Publications</string>

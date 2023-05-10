@@ -17,6 +17,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import com.tfg.domain.models.data.Customer
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
@@ -327,9 +328,16 @@ class FirebaseDataSource @Inject constructor(
         val user = auth.currentUser
         if (user != null) {
             user.updateEmail(email).addOnCompleteListener { task ->
-                if (task.isSuccessful)
-                    cont.resume(ResultOf.Success(Unit))
-                else
+                if (task.isSuccessful) {
+                    db.collection("users").document(auth.uid ?: "").set(
+                        mapOf("email" to email),
+                        SetOptions.merge()
+                    ).addOnSuccessListener {
+                        cont.resume(ResultOf.Success(Unit))
+                    }.addOnFailureListener {
+                        cont.resume(ResultOf.Failure(it))
+                    }
+                } else
                     cont.resume(ResultOf.Failure(task.exception))
             }
         } else {
@@ -337,10 +345,18 @@ class FirebaseDataSource @Inject constructor(
         }
     }
 
-    override suspend fun addUser(userId: String, name: String, photoUrl: String): ResultOf<Unit> = suspendCoroutine { cont ->
+    override suspend fun addUser(
+        userId: String,
+        name: String,
+        email: String,
+        phone: String,
+        photoUrl: String
+    ): ResultOf<Unit> = suspendCoroutine { cont ->
         db.collection("users").document(userId).set(
             mapOf(
                 "name" to name,
+                "email" to email,
+                "phone" to phone,
                 "photoUrl" to photoUrl
             ),
             SetOptions.merge()
@@ -352,6 +368,33 @@ class FirebaseDataSource @Inject constructor(
                 cont.resume(ResultOf.Failure(it))
             }
         }
+    }
+
+    override fun getCustomers(): Flow<ResultOf<List<Customer>>> = callbackFlow {
+        val registration = db.collection("users")
+            .addSnapshotListener { snapshot, error ->
+
+                if (error != null) {
+                    trySend(ResultOf.Failure(error))
+                }
+
+                if (snapshot != null) {
+                    val customers = mutableListOf<Customer>()
+                    for (document in snapshot) {
+                        Log.d(TAG, "${document.id} => ${document.data}")
+
+                        customers.add(
+                            document.toObject<Customer>().apply { id = document.id }
+                        )
+
+                    }
+                    trySend(ResultOf.Success(customers))
+                }
+
+            }
+
+        awaitClose { registration.remove() }
+
     }
 
 }

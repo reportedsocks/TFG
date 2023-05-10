@@ -29,6 +29,8 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.tfg.domain.models.ui.UserRole
+import com.tfg.domain.util.ResultOf
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -88,15 +90,19 @@ class MainActivity : ComponentActivity() {
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
-            val user = auth.currentUser
-            viewModel.userFlow.value = User(
-                user?.uid,
-                user?.displayName,
-                user?.email,
-                user?.phoneNumber,
-                user?.photoUrl
-            )
-            viewModel.addUser(user?.uid ?: "", user?.displayName ?: "", user?.photoUrl?.toString() ?: "")
+            val firebaseUser = auth.currentUser
+            firebaseUser?.let {
+                val user = User(
+                    it.uid,
+                    it.displayName,
+                    it.email,
+                    it.phoneNumber,
+                    it.photoUrl
+                )
+                viewModel.userFlow.value = user
+                viewModel.addUser(user)
+            }
+
             initUi()
         } else {
             // Sign in failed. If response is null the user canceled the
@@ -152,7 +158,19 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = {
                         BottomNavigation {
-                            homeScreens.forEach { screen ->
+
+                            val userRole by viewModel.getUserRole(user.id ?: "").collectAsStateWithLifecycle(
+                                initialValue = ResultOf.Loading
+                            )
+
+                            for (screen in homeScreens) {
+                                // Check for admin privileges
+                                if (screen == Screen.UsersList) {
+                                    if (userRole !is ResultOf.Success || (userRole as ResultOf.Success).data != UserRole.ADMIN) {
+                                        continue
+                                    }
+                                }
+
                                 BottomNavigationItem(
                                     icon = { Icon(iconMap[screen] ?: Icons.Filled.List, contentDescription = getString(screen.title)) },
                                     label = { Text(stringResource(screen.title)) },

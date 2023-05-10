@@ -3,6 +3,7 @@ package com.tfg.domain.use_cases
 import android.net.Uri
 import com.tfg.domain.interfaces.DataSource
 import com.tfg.domain.models.ui.Author
+import com.tfg.domain.models.ui.User
 import com.tfg.domain.models.ui.UserRole
 import com.tfg.domain.util.ResultOf
 import com.tfg.domain.util.transform
@@ -46,8 +47,8 @@ class ProfileUseCaseImpl @Inject constructor(
 
     }
 
-    override suspend fun addUser(userId: String, name: String, photoUrl: String): ResultOf<Unit> {
-        return dataSource.addUser(userId, name, photoUrl)
+    override suspend fun addUser(user: User): ResultOf<Unit> {
+        return dataSource.addUser(user.id ?: "", user.name ?: "", user.email ?: "", user.phoneNumber ?: "", user.avatar?.toString() ?: "")
     }
 
     override fun getAuthor(userId: String): Flow<ResultOf<Author>> {
@@ -67,6 +68,14 @@ class ProfileUseCaseImpl @Inject constructor(
                     2 -> UserRole.ADMIN
                     else -> UserRole.AUTHOR
                 }
+            }
+        }
+    }
+
+    override fun getCustomers(): Flow<ResultOf<List<User>>> {
+        return dataSource.getCustomers().map { result ->
+            result.transform {
+                map { customer -> User(customer.id, customer.name, customer.email, customer.phone, Uri.parse(customer.photoUrl)) }
             }
         }
     }

@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ScaffoldState
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat.recreate
@@ -54,6 +55,16 @@ fun NavigationGraph(
     }
 
     NavHost(navController, startDestination = Screen.PublicationsList.route, Modifier.padding(innerPadding)) {
+        
+        composable(Screen.UsersList.route) {
+
+            val customers by viewModel.customersFlow.collectAsStateWithLifecycle()
+
+            UsersList(
+                result = customers,
+                showErrorSnackBar = { e -> showErrorSnackBar(e) }
+            )
+        }
 
         composable(Screen.Profile.route) {
             val role by viewModel.getUserRole(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)

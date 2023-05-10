@@ -3,6 +3,7 @@ package com.tfg.domain.interfaces
 import android.net.Uri
 import com.tfg.domain.models.data.Article
 import com.tfg.domain.models.data.Author
+import com.tfg.domain.models.data.Customer
 import com.tfg.domain.models.data.Publication
 import com.tfg.domain.util.ResultOf
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +36,8 @@ interface DataSource {
 
     suspend fun updateUserEmail(email: String): ResultOf<Unit>
 
-    suspend fun addUser(userId: String, name: String, photoUrl: String): ResultOf<Unit>
+    suspend fun addUser(userId: String, name: String, email: String, phone: String, photoUrl: String): ResultOf<Unit>
+
+    fun getCustomers(): Flow<ResultOf<List<Customer>>>
 
 }

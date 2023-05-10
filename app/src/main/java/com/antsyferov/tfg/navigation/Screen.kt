@@ -31,6 +31,11 @@ sealed class Screen(
             for (p in params) { append("/$p") }
         }.toString()
 
+    object UsersList : Screen(
+        root = "users",
+        title = R.string.users_list_title
+    )
+
     object Profile : Screen(
         root = "profile",
         title = R.string.profile_title
