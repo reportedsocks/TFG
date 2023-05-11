@@ -5,5 +5,6 @@ data class Customer(
     val name: String = "",
     val email: String = "",
     val phone: String = "",
-    val photoUrl: String = ""
+    val photoUrl: String = "",
+    val role: Int = 0
 )

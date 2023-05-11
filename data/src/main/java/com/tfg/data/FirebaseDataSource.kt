@@ -204,6 +204,18 @@ class FirebaseDataSource @Inject constructor(
         awaitClose()
     }
 
+    override suspend fun setUserRole(userId: String, role: Int): ResultOf<Unit> = suspendCoroutine { cont ->
+        db.collection("users").document(userId).set(
+            mapOf("role" to role),
+            SetOptions.merge()
+        ).addOnSuccessListener {
+            cont.resume(ResultOf.Success(Unit))
+        }.addOnFailureListener { e ->
+            cont.resume(ResultOf.Failure(e))
+        }
+
+    }
+
     override fun getAuthor(userId: String): Flow<ResultOf<Author>> = callbackFlow {
         db.collection("users").document(userId).get()
             .addOnSuccessListener { snapshot ->

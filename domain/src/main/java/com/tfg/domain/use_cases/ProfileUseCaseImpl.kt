@@ -51,6 +51,10 @@ class ProfileUseCaseImpl @Inject constructor(
         return dataSource.addUser(user.id ?: "", user.name ?: "", user.email ?: "", user.phoneNumber ?: "", user.avatar?.toString() ?: "")
     }
 
+    override suspend fun setUserRole(userId: String, role: UserRole): ResultOf<Unit> {
+        return dataSource.setUserRole(userId, role.num)
+    }
+
     override fun getAuthor(userId: String): Flow<ResultOf<Author>> {
         return dataSource.getAuthor(userId).map { result ->
             result.transform {
@@ -75,7 +79,13 @@ class ProfileUseCaseImpl @Inject constructor(
     override fun getCustomers(): Flow<ResultOf<List<User>>> {
         return dataSource.getCustomers().map { result ->
             result.transform {
-                map { customer -> User(customer.id, customer.name, customer.email, customer.phone, Uri.parse(customer.photoUrl)) }
+                map { customer -> User(customer.id, customer.name, customer.email, customer.phone, Uri.parse(customer.photoUrl), when(customer.role) {
+                    1 -> UserRole.REVIEWER
+                    2 -> UserRole.ADMIN
+                    else -> UserRole.AUTHOR
+                }
+                )
+                }
             }
         }
     }

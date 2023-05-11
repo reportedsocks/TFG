@@ -9,10 +9,12 @@ import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.models.ui.User
 import com.tfg.domain.models.ui.UserRole
 import com.antsyferov.tfg.util.ValidationUtils
+import com.tfg.domain.models.data.Customer
 import com.tfg.domain.use_cases.ArticlesUseCase
 import com.tfg.domain.use_cases.ProfileUseCase
 import com.tfg.domain.use_cases.PublicationsListUseCase
 import com.tfg.domain.util.ResultOf
+import com.tfg.domain.util.transform
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -39,6 +41,12 @@ class MainViewModel @Inject constructor(
         initialValue = ResultOf.Loading,
         started = SharingStarted.WhileSubscribed(5000)
     )
+
+    fun getCustomerById(userId: String): Flow<ResultOf<User?>> {
+        return profileUseCase.getCustomers().map { result ->
+            result.transform { find { customer -> customer.id == userId } }
+        }
+    }
 
     fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
         return profileUseCase.getUserRole(userId)
@@ -76,6 +84,10 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             profileUseCase.addUser(user)
         }
+    }
+
+    suspend fun setUserRole(userId: String, role: UserRole): ResultOf<Unit> {
+        return profileUseCase.setUserRole(userId, role)
     }
 
     suspend fun saveProfile(user: User, name: String, email: String, uri: Uri?): ResultOf<Unit> {

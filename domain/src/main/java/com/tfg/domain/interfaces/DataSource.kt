@@ -24,6 +24,8 @@ interface DataSource {
 
     fun getUserRole(userId: String): Flow<ResultOf<Int>>
 
+    suspend fun setUserRole(userId: String, role: Int): ResultOf<Unit>
+
     fun getAuthor(userId: String): Flow<ResultOf<Author>>
 
     suspend fun addArticle(publicationId: String, article: Article): ResultOf<String>

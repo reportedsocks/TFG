@@ -36,6 +36,12 @@ sealed class Screen(
         title = R.string.users_list_title
     )
 
+    object UserView : Screen(
+        root = "user_view",
+        title = R.string.user_view_title,
+        params = arrayOf("id")
+    )
+
     object Profile : Screen(
         root = "profile",
         title = R.string.profile_title

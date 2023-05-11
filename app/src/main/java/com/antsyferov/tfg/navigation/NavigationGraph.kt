@@ -62,7 +62,27 @@ fun NavigationGraph(
 
             UsersList(
                 result = customers,
-                showErrorSnackBar = { e -> showErrorSnackBar(e) }
+                showErrorSnackBar = { e -> showErrorSnackBar(e) },
+                onUserSelected = { user -> navController.navigate(Screen.UserView.getNavDirection(user.id ?: ""))}
+            )
+        }
+
+        composable(
+            Screen.UserView.route,
+            arguments = listOf(navArgument(Screen.UserView.params.first()) { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString(Screen.UserView.params.first()) ?: ""
+            val customer by viewModel.getCustomerById(userId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+
+            UserView(
+                customerResult = customer,
+                showErrorSnackBar = { e -> showErrorSnackBar(e) },
+                onSaveButtonClick = { id, role ->
+                    coroutineScope.launch {
+                        viewModel.setUserRole(id, role)
+                    }
+                    navController.popBackStack()
+                }
             )
         }
 
