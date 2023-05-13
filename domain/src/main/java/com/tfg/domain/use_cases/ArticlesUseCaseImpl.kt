@@ -1,7 +1,7 @@
 package com.tfg.domain.use_cases
 
 import android.net.Uri
-import com.tfg.domain.interfaces.DataSource
+import com.tfg.domain.interfaces.ArticleDataSource
 import com.tfg.domain.models.ui.Article
 import com.tfg.domain.models.ui.User
 import com.tfg.domain.util.ResultOf
@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ArticlesUseCaseImpl @Inject constructor(
-    private val dataSource: DataSource
+    private val articleDataSource: ArticleDataSource
 ): ArticlesUseCase {
     override fun getArticles(publicationId: String): Flow<ResultOf<List<Article>>> {
-       return dataSource.getArticles(publicationId).map { result ->
+       return articleDataSource.getArticles(publicationId).map { result ->
             result.transform {
                 map { firebaseArticle ->
                     Article(
@@ -31,7 +31,7 @@ class ArticlesUseCaseImpl @Inject constructor(
     }
 
     override fun getArticlesByUser(userId: String): Flow<ResultOf<List<Article>>> {
-        return dataSource.getArticlesByUser(userId).map { result ->
+        return articleDataSource.getArticlesByUser(userId).map { result ->
             result.transform {
                 map { firebaseArticle ->
                     Article(
@@ -48,7 +48,7 @@ class ArticlesUseCaseImpl @Inject constructor(
     }
 
     override fun getArticleByAuthorId(articleId: String, userId: String): Flow<ResultOf<Article>> {
-        return dataSource.getArticleByAuthorId(articleId, userId).map { result ->
+        return articleDataSource.getArticleByAuthorId(articleId, userId).map { result ->
             result.transform {
                 Article(
                     id ?: "",
@@ -66,7 +66,7 @@ class ArticlesUseCaseImpl @Inject constructor(
         articleId: String,
         publicationId: String
     ): Flow<ResultOf<Article>> {
-        return dataSource.getArticleByPublicationId(articleId, publicationId).map { result ->
+        return articleDataSource.getArticleByPublicationId(articleId, publicationId).map { result ->
             result.transform {
                 Article(
                     id ?: "",
@@ -81,7 +81,7 @@ class ArticlesUseCaseImpl @Inject constructor(
     }
 
     override fun getPdfDownloadUrl(articleId: String): Flow<ResultOf<Uri>> {
-        return dataSource.getPdfDownloadUrl(articleId)
+        return articleDataSource.getPdfDownloadUrl(articleId)
     }
 
     override suspend fun addArticle(
@@ -93,7 +93,7 @@ class ArticlesUseCaseImpl @Inject constructor(
         uri: Uri
     ): ResultOf<Unit> {
 
-        val resultId = dataSource.addArticle(
+        val resultId = articleDataSource.addArticle(
             publicationId,
             com.tfg.domain.models.data.Article(
                 title = title,
@@ -105,7 +105,7 @@ class ArticlesUseCaseImpl @Inject constructor(
 
         //TODO need to delete article if pdf upload fails
         return if (resultId is ResultOf.Success)
-            dataSource.savePdf(resultId.data, uri)
+            articleDataSource.savePdf(resultId.data, uri)
         else
             resultId.transform {  }
 

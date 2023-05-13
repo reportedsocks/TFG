@@ -79,4 +79,16 @@ sealed class Screen(
         title = R.string.article_view_title,
         params = arrayOf("article_id", "author_id", "publication_id")
     )
+
+    object ReviewsList: Screen(
+        root = "reviews_list",
+        title = R.string.reviews_view_title,
+        params = arrayOf("article_id", "author_id")
+    )
+
+    object AddReview: Screen(
+        root = "add_review",
+        title = R.string.add_review_title,
+        params = arrayOf("article_id", "author_id")
+    )
 }

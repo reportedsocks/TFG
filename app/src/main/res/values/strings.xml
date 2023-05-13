@@ -10,6 +10,8 @@
     <string name="articles_list_title">Articles</string>
     <string name="article_add_title">Add Article</string>
     <string name="article_view_title">View Article</string>
+    <string name="reviews_view_title">View Reviews</string>
+    <string name="add_review_title">Add Review</string>
 
     <string name="error_name_validation">Please, enter correct name</string>
     <string name="error_email_validation">Please, enter correct email</string>

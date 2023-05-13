@@ -1,6 +1,6 @@
 package com.tfg.domain.use_cases
 
-import com.tfg.domain.interfaces.DataSource
+import com.tfg.domain.interfaces.PublicationsDataSource
 import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.util.ResultOf
 import com.tfg.domain.util.transform
@@ -10,11 +10,11 @@ import java.util.Date
 import javax.inject.Inject
 
 class PublicationsListUseCaseImpl @Inject constructor(
-    private val dataSource: DataSource
+    private val publicationsDataSource: PublicationsDataSource
 ): PublicationsListUseCase {
 
     override fun getPublications(): Flow<ResultOf<List<Publication>>> {
-        return dataSource.getPublications().map { result ->
+        return publicationsDataSource.getPublications().map { result ->
            result.transform {
                map { firebasePublication ->
                    Publication(

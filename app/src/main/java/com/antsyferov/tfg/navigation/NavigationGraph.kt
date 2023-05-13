@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ScaffoldState
@@ -28,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.rajat.pdfviewer.PdfViewerActivity
+import com.tfg.domain.models.ui.Review
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -221,7 +223,8 @@ fun NavigationGraph(
                             enableDownload = false
                         )
                     )
-                }
+                },
+                openReviews = { navController.navigate(Screen.ReviewsList.getNavDirection(articleId, authorId))}
             )
         }
 
@@ -263,6 +266,59 @@ fun NavigationGraph(
                     }
                 }
             )
+        }
+
+        composable(
+            Screen.ReviewsList.route,
+            arguments = listOf(
+                navArgument(Screen.ArticleView.params.first()) { type = NavType.StringType },
+                navArgument(Screen.ArticleView.params[1]) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+
+            val articleId = backStackEntry.arguments?.getString(Screen.ArticleView.params.first()) ?: ""
+            val authorId = backStackEntry.arguments?.getString(Screen.ArticleView.params[1]) ?: ""
+
+            val reviewsResult by viewModel.getReviews(articleId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+            Column() {
+                Text(text= "Reviews...")
+                Text(text= reviewsResult.toString())
+            }
+
+        }
+
+        composable(
+            Screen.AddReview.route,
+            arguments = listOf(
+                navArgument(Screen.ArticleView.params.first()) { type = NavType.StringType },
+                navArgument(Screen.ArticleView.params[1]) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+
+            val articleId = backStackEntry.arguments?.getString(Screen.ArticleView.params.first()) ?: ""
+            val authorId = backStackEntry.arguments?.getString(Screen.ArticleView.params[1]) ?: ""
+
+            AddReview() { rating, description, relevance, comment ->
+                coroutineScope.launch {
+                    val result = viewModel.addReview(
+                        articleId,
+                        authorId,
+                        user.id ?: "",
+                        Review(rating, description, relevance, comment)
+                    )
+
+                    navController.popBackStack()
+
+                    if (result is ResultOf.Success) {
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = "Review added!"
+                        )
+                    } else if (result is ResultOf.Failure) {
+                        showErrorSnackBar(result.e)
+                    }
+
+                }
+            }
         }
     }
 }

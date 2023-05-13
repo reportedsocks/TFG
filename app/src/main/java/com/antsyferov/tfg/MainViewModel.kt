@@ -10,9 +10,11 @@ import com.tfg.domain.models.ui.User
 import com.tfg.domain.models.ui.UserRole
 import com.antsyferov.tfg.util.ValidationUtils
 import com.tfg.domain.models.data.Customer
+import com.tfg.domain.models.ui.Review
 import com.tfg.domain.use_cases.ArticlesUseCase
 import com.tfg.domain.use_cases.ProfileUseCase
 import com.tfg.domain.use_cases.PublicationsListUseCase
+import com.tfg.domain.use_cases.ReviewsUseCase
 import com.tfg.domain.util.ResultOf
 import com.tfg.domain.util.transform
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +26,8 @@ import kotlin.collections.List
 class MainViewModel @Inject constructor(
     private val publicationsListUseCase: PublicationsListUseCase,
     private val articlesUseCase: ArticlesUseCase,
-    private val profileUseCase: ProfileUseCase
+    private val profileUseCase: ProfileUseCase,
+    private val reviewsUseCase: ReviewsUseCase
 ): ViewModel() {
 
     val fileUriFlow = MutableStateFlow<Uri?>(null)
@@ -50,6 +53,10 @@ class MainViewModel @Inject constructor(
 
     fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
         return profileUseCase.getUserRole(userId)
+    }
+
+    fun getReviews(articleId: String): Flow<ResultOf<List<Review>>> {
+        return reviewsUseCase.getReviews(articleId)
     }
 
     fun getArticles(publicationId: String): Flow<ResultOf<List<Article>>> {
@@ -78,6 +85,10 @@ class MainViewModel @Inject constructor(
 
     suspend fun addArticle(publicationId: String, title: String, description: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit> {
         return articlesUseCase.addArticle(publicationId, title, description, characterCount, user, uri)
+    }
+
+    suspend fun addReview(articleId: String, articleAuthorId: String, authorId: String, review: Review): ResultOf<Unit> {
+       return reviewsUseCase.addReview(articleId, articleAuthorId, authorId, review)
     }
 
     fun addUser(user: User) {

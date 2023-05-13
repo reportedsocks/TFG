@@ -6,6 +6,8 @@ import com.tfg.domain.use_cases.ProfileUseCase
 import com.tfg.domain.use_cases.ProfileUseCaseImpl
 import com.tfg.domain.use_cases.PublicationsListUseCase
 import com.tfg.domain.use_cases.PublicationsListUseCaseImpl
+import com.tfg.domain.use_cases.ReviewsUseCase
+import com.tfg.domain.use_cases.ReviewsUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,5 +35,11 @@ abstract class DomainHiltModule {
     abstract fun profileUseCase(
         profileUseCase: ProfileUseCaseImpl
     ): ProfileUseCase
+
+    @Singleton
+    @Binds
+    abstract fun reviewsUseCase(
+        reviewsUseCase: ReviewsUseCaseImpl
+    ): ReviewsUseCase
 
 }

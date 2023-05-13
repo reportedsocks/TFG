@@ -41,7 +41,8 @@ fun ArticleView(
     authorResult: ResultOf<Author>,
     showErrorSnackBar: (Throwable?) -> Unit,
     openBrowser: (Uri) -> Unit,
-    openViewer: (Uri, String) -> Unit
+    openViewer: (Uri, String) -> Unit,
+    openReviews: () -> Unit
 ) {
 
     if (articleResult is ResultOf.Loading || downloadUri is ResultOf.Loading || authorResult is ResultOf.Loading) {
@@ -149,6 +150,19 @@ fun ArticleView(
 
 
             Spacer(modifier = Modifier.weight(1f))
+
+
+            Button(
+                onClick = { openReviews.invoke() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "View Reviews",
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = { openViewer.invoke(downloadUri.data, article.title.take(20)) },
