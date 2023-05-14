@@ -196,13 +196,19 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                             }
-                        } else if (Screen.ReviewsList.route == currentRoute) { //TODO check permissions
-                            FloatingActionButton(onClick = {
-                                val articleId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params.first()) ?: ""
-                                val authorId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params[1]) ?: ""
-                                navController.navigate(Screen.AddReview.getNavDirection(articleId, authorId))
-                            }) {
-                                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                        } else if (Screen.ReviewsList.route == currentRoute) {
+
+                            //TODO check permissions
+                            val isAllowedToReview by viewModel.checkIfUserCanPostReview().collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+
+                            if((isAllowedToReview as? ResultOf.Success)?.data == true) {
+                                FloatingActionButton(onClick = {
+                                    val articleId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params.first()) ?: ""
+                                    val authorId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params[1]) ?: ""
+                                    navController.navigate(Screen.AddReview.getNavDirection(articleId, authorId))
+                                }) {
+                                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                                }
                             }
                         }
                     },

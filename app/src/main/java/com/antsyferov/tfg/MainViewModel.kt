@@ -51,6 +51,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun checkIfUserCanPostReview(): Flow<ResultOf<Boolean>> {
+        return MutableStateFlow(ResultOf.Success(true))
+    }
+
     fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
         return profileUseCase.getUserRole(userId)
     }

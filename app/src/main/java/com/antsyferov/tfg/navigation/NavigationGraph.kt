@@ -280,10 +280,11 @@ fun NavigationGraph(
             val authorId = backStackEntry.arguments?.getString(Screen.ArticleView.params[1]) ?: ""
 
             val reviewsResult by viewModel.getReviews(articleId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
-            Column() {
-                Text(text= "Reviews...")
-                Text(text= reviewsResult.toString())
-            }
+
+            ReviewsList(
+                result = reviewsResult,
+                showErrorSnackBar = { e -> showErrorSnackBar(e) }
+            )
 
         }
 
@@ -304,7 +305,12 @@ fun NavigationGraph(
                         articleId,
                         authorId,
                         user.id ?: "",
-                        Review(rating, description, relevance, comment)
+                        Review(
+                            rating = rating,
+                            description = description,
+                            relevance = relevance,
+                            comment = comment
+                        )
                     )
 
                     navController.popBackStack()

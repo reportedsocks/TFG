@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun EmptyList(
     text: String,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

@@ -38,10 +38,12 @@ class ReviewsUseCaseImpl @Inject constructor(
             result.transform {
                 map { review ->
                     Review(
+                        id = review.id,
                         rating = review.rating,
                         description = review.description,
                         relevance = review.relevance,
-                        comment = review.comment
+                        comment = review.comment,
+                        createdAt = review.createdAt
                     )
                 }
             }
