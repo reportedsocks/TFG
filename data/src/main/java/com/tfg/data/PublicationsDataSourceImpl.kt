@@ -2,6 +2,7 @@ package com.tfg.data
 
 import android.util.Log
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -50,6 +51,20 @@ class PublicationsDataSourceImpl @Inject constructor(): PublicationsDataSource {
             }
 
         awaitClose { registration.remove() }
+    }
+
+    override suspend fun addPublication(publication: Publication): ResultOf<Unit> = suspendCoroutine { cont ->
+
+        val publicationRef = db.collection("publications").document()
+
+        publication.id = publicationRef.id
+
+        publicationRef.set(publication).addOnSuccessListener {
+            cont.resume(ResultOf.Success(Unit))
+        }.addOnFailureListener { e ->
+            cont.resume(ResultOf.Failure(e))
+        }
+
     }
 
     override suspend fun getPublicationIdByArticle(

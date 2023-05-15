@@ -9,7 +9,6 @@ import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.models.ui.User
 import com.tfg.domain.models.ui.UserRole
 import com.antsyferov.tfg.util.ValidationUtils
-import com.tfg.domain.models.data.Customer
 import com.tfg.domain.models.ui.Review
 import com.tfg.domain.use_cases.ArticlesUseCase
 import com.tfg.domain.use_cases.ProfileUseCase
@@ -22,6 +21,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.collections.List
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val publicationsListUseCase: PublicationsListUseCase,
@@ -51,8 +53,18 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun checkIfUserCanPostReview(): Flow<ResultOf<Boolean>> {
-        return MutableStateFlow(ResultOf.Success(true))
+    fun checkIfUserCanPostReview(
+        articleId: String,
+        articleAuthorId: String,
+        userId: String,
+        userRole: UserRole
+    ): Boolean {
+
+        val isAuthor = userRole == UserRole.AUTHOR
+
+        val isSameUser = articleAuthorId == userId
+
+        return !isAuthor && !isSameUser
     }
 
     fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
@@ -93,6 +105,10 @@ class MainViewModel @Inject constructor(
 
     suspend fun addReview(articleId: String, articleAuthorId: String, authorId: String, review: Review): ResultOf<Unit> {
        return reviewsUseCase.addReview(articleId, articleAuthorId, authorId, review)
+    }
+
+    suspend fun addPublication(): ResultOf<Unit> {
+        return publicationsListUseCase.addPublication(Publication("", "", "", Publication.Status.OPEN))
     }
 
     fun addUser(user: User) {

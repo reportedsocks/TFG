@@ -21,17 +21,23 @@ class PublicationsListUseCaseImpl @Inject constructor(
                        id = firebasePublication.id,
                        title = firebasePublication.title,
                        description = firebasePublication.description,
-                       status = getPublicationStatus(firebasePublication.review_date, firebasePublication.completion_date)
+                       status = getPublicationStatus(firebasePublication.reviewDate, firebasePublication.completionDate)
                    )
                }
            }
         }
     }
 
-    private fun getPublicationStatus(reviewTimestamp: Long, completionTimestamp: Long): Publication.Status {
+    override suspend fun addPublication(publication: Publication): ResultOf<Unit> {
+        return publicationsDataSource.addPublication(
+            com.tfg.domain.models.data.Publication(
+
+            )
+        )
+    }
+
+    private fun getPublicationStatus(review: Date, completion: Date): Publication.Status {
         val now = Date()
-        val review = Date(reviewTimestamp)
-        val completion = Date(completionTimestamp)
 
         return if (review.before(now))
             Publication.Status.OPEN

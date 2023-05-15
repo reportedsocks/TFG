@@ -32,6 +32,7 @@ import com.google.firebase.ktx.Firebase
 import com.tfg.domain.models.ui.UserRole
 import com.tfg.domain.util.ResultOf
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -189,6 +190,11 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     floatingActionButton = {
+                        val userRoleResult by viewModel.getUserRole(user.id ?: "").collectAsStateWithLifecycle(
+                            initialValue = ResultOf.Success(UserRole.AUTHOR)
+                        )
+                        val role = (userRoleResult as? ResultOf.Success)?.data ?: UserRole.AUTHOR
+
                         if (Screen.ArticlesList.route == currentRoute) {
                             FloatingActionButton(onClick = {
                                 val publicationId = navController.currentBackStackEntry?.arguments?.getString(Screen.ArticlesList.params.first())
@@ -198,14 +204,24 @@ class MainActivity : ComponentActivity() {
                             }
                         } else if (Screen.ReviewsList.route == currentRoute) {
 
-                            //TODO check permissions
-                            val isAllowedToReview by viewModel.checkIfUserCanPostReview().collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+                            val articleId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params.first()) ?: ""
+                            val authorId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params[1]) ?: ""
 
-                            if((isAllowedToReview as? ResultOf.Success)?.data == true) {
+                            var isAllowedToReview by remember { mutableStateOf(false) }
+
+                            isAllowedToReview = viewModel.checkIfUserCanPostReview(articleId, authorId, user.id ?: "", role)
+
+                            if(isAllowedToReview) {
                                 FloatingActionButton(onClick = {
-                                    val articleId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params.first()) ?: ""
-                                    val authorId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params[1]) ?: ""
                                     navController.navigate(Screen.AddReview.getNavDirection(articleId, authorId))
+                                }) {
+                                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                                }
+                            }
+                        } else if (Screen.PublicationsList.route == currentRoute) {
+                            if(role == UserRole.ADMIN) {
+                                FloatingActionButton(onClick = {
+                                    navController.navigate(Screen.AddPublication.getNavDirection())
                                 }) {
                                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                                 }

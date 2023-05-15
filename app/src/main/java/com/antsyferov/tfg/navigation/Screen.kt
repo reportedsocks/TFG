@@ -52,6 +52,11 @@ sealed class Screen(
         title = R.string.publications_list_title
     )
 
+    object AddPublication : Screen(
+        root = "add_publication",
+        title = R.string.add_publication_title
+    )
+
     object MyArticlesList : Screen(
         root = "myArticles",
         title = R.string.my_articles_list_title

@@ -8,4 +8,6 @@ interface PublicationsListUseCase {
 
     fun getPublications(): Flow<ResultOf<List<Publication>>>
 
+    suspend fun addPublication(publication: Publication): ResultOf<Unit>
+
 }

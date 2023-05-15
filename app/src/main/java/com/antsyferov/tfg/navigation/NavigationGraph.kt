@@ -8,11 +8,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.recreate
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -118,6 +123,23 @@ fun NavigationGraph(
                 }
             )
         }
+
+        composable(Screen.AddPublication.route) {
+
+            Column(modifier = Modifier.fillMaxSize()) {
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = { coroutineScope.launch { viewModel.addPublication() } },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Save", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                }
+
+            }
+        }
+
         composable(Screen.MyArticlesList.route) {
             val result by viewModel.getArticlesByUser(user.id ?: "").collectAsStateWithLifecycle(
                 initialValue = ResultOf.Loading
