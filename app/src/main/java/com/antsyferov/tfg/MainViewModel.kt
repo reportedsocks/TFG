@@ -21,8 +21,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.collections.List
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -107,8 +105,8 @@ class MainViewModel @Inject constructor(
        return reviewsUseCase.addReview(articleId, articleAuthorId, authorId, review)
     }
 
-    suspend fun addPublication(): ResultOf<Unit> {
-        return publicationsListUseCase.addPublication(Publication("", "", "", Publication.Status.OPEN))
+    suspend fun addPublication(publication: Publication): ResultOf<Unit> {
+        return publicationsListUseCase.addPublication(publication)
     }
 
     fun addUser(user: User) {

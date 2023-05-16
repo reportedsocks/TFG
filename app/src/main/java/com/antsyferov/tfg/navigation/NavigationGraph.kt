@@ -6,18 +6,11 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
 import androidx.compose.material.ScaffoldState
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.recreate
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -125,19 +118,27 @@ fun NavigationGraph(
         }
 
         composable(Screen.AddPublication.route) {
+            var shouldShowLoader by remember { mutableStateOf(false) }
+            AddPublication(
+                context = activity,
+                isLoading = shouldShowLoader,
+                onSaveButtonClick = {
 
-            Column(modifier = Modifier.fillMaxSize()) {
+                    coroutineScope.launch {
+                        shouldShowLoader = true
+                        val result = viewModel.addPublication(it)
+                        if (result is ResultOf.Success) {
+                            navController.popBackStack()
+                            scaffoldState.snackbarHostState.showSnackbar(
+                                message = "Publication added!"
+                            )
+                        } else
+                            showErrorSnackBar(null)
+                        shouldShowLoader = false
+                    }
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Button(
-                    onClick = { coroutineScope.launch { viewModel.addPublication() } },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "Save", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
                 }
-
-            }
+            )
         }
 
         composable(Screen.MyArticlesList.route) {

@@ -21,7 +21,10 @@ class PublicationsListUseCaseImpl @Inject constructor(
                        id = firebasePublication.id,
                        title = firebasePublication.title,
                        description = firebasePublication.description,
-                       status = getPublicationStatus(firebasePublication.reviewDate, firebasePublication.completionDate)
+                       status = getPublicationStatus(firebasePublication.reviewDate, firebasePublication.completionDate),
+                       reviewDate = firebasePublication.reviewDate,
+                       finalSubmitDate = firebasePublication.finalSubmitDate,
+                       completionDate = firebasePublication.completionDate
                    )
                }
            }
@@ -31,7 +34,11 @@ class PublicationsListUseCaseImpl @Inject constructor(
     override suspend fun addPublication(publication: Publication): ResultOf<Unit> {
         return publicationsDataSource.addPublication(
             com.tfg.domain.models.data.Publication(
-
+                title = publication.title,
+                description = publication.description,
+                reviewDate = publication.reviewDate,
+                finalSubmitDate = publication.finalSubmitDate,
+                completionDate = publication.completionDate
             )
         )
     }

@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.util.ResultOf
 
@@ -87,12 +88,12 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Image(
-                    painter = painterResource(id = publication.image),
+                Icon(
+                    painter = painterResource(id = com.tfg.domain.R.drawable.ic_feed),
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                    tint = MaterialTheme.colors.onPrimary,
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(60.dp)
                         .clip(RoundedCornerShape(8.dp))
                 )
                 Column(
@@ -109,10 +110,6 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                     }
                     Text(
                         text = "Status: $status",
-                        style = MaterialTheme.typography.subtitle1
-                    )
-                    Text(
-                        text = "Articles: xxx",
                         style = MaterialTheme.typography.subtitle1
                     )
 
@@ -141,6 +138,58 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(top = 16.dp)
                 )
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                Surface(
+                    color = MaterialTheme.colors.background,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+
+                        TextField(
+                            value = publication.reviewDate.toString(),
+                            onValueChange = {  },
+                            label = { Text("Review Date") },
+                            enabled = false,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(8.dp)
+                        )
+                        TextField(
+                            value = publication.finalSubmitDate.toString(),
+                            onValueChange = {  },
+                            label = { Text("Final Submit Date") },
+                            enabled = false,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(8.dp)
+                        )
+                        TextField(
+                            value = publication.completionDate.toString(),
+                            onValueChange = {  },
+                            label = { Text("Completion Date") },
+                            enabled = false,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+
+
             }
 
         }
