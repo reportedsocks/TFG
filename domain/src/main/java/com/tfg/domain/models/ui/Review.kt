@@ -8,5 +8,6 @@ data class Review(
     val description: String,
     val relevance: Int,
     val comment: String,
+    val reviewAuthorId: String = "",
     val createdAt: Date = Date()
 )

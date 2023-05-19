@@ -27,11 +27,15 @@ import androidx.compose.ui.unit.dp
 import com.tfg.domain.models.ui.ArticleRating
 import com.tfg.domain.models.ui.Review
 import com.tfg.domain.models.ui.ReviewRelevance
+import com.tfg.domain.models.ui.User
+import com.tfg.domain.models.ui.UserRole
 import com.tfg.domain.util.ResultOf
 
 @Composable
 fun ReviewsList(
     modifier: Modifier = Modifier,
+    customerRes: ResultOf<User?>,
+    articleId: String,
     result: ResultOf<List<Review>>,
     showErrorSnackBar: (Throwable?) -> Unit
 ) {
@@ -41,19 +45,34 @@ fun ReviewsList(
             if (result.data.isEmpty()) {
                 EmptyList(text = "No reviews at the moment!")
             } else {
-                LazyColumn(
-                    modifier = modifier,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                    state = rememberLazyListState()
-                ) {
-                    items(
-                        items = result.data,
-                        key = { item: Review -> item.id }
-                    ) {
-                        Review(review = it)
+
+                if (customerRes is ResultOf.Success && customerRes.data != null) {
+
+                    val customer = customerRes.data
+                    val customerArticles = listOf(customer?.articleId1, customer?.articleId2, customer?.articleId3)
+
+                    var reviews = result.data
+
+                    if (customer?.role == UserRole.REVIEWER && customerArticles.contains(articleId)) {
+                        reviews = reviews.filter { it.reviewAuthorId == customer.id }
                     }
+
+                    LazyColumn(
+                        modifier = modifier,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                        state = rememberLazyListState()
+                    ) {
+                        items(
+                            items = reviews,
+                            key = { item: Review -> item.id }
+                        ) {
+                            Review(review = it)
+                        }
+                    }
+
                 }
+
             }
 
         }

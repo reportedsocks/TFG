@@ -14,7 +14,7 @@ interface ProfileUseCase {
 
     suspend fun addUser(user: User): ResultOf<Unit>
 
-    suspend fun setUserRole(userId: String, role: UserRole): ResultOf<Unit>
+    suspend fun setUserRole(userId: String, role: UserRole, selectedPublication: String?, selectedArticle1: String?, selectedArticle2: String?, selectedArticle3: String?): ResultOf<Unit>
 
     fun getAuthor(userId: String): Flow<ResultOf<Author>>
 

@@ -115,8 +115,8 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    suspend fun setUserRole(userId: String, role: UserRole): ResultOf<Unit> {
-        return profileUseCase.setUserRole(userId, role)
+    suspend fun setUserRole(userId: String, role: UserRole, selectedPublication: String?, selectedArticle1: String?, selectedArticle2: String?, selectedArticle3: String?): ResultOf<Unit> {
+        return profileUseCase.setUserRole(userId, role, selectedPublication, selectedArticle1, selectedArticle2, selectedArticle3)
     }
 
     suspend fun saveProfile(user: User, name: String, email: String, uri: Uri?): ResultOf<Unit> {

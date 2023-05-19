@@ -23,12 +23,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Publication
+import com.tfg.domain.models.ui.User
+import com.tfg.domain.models.ui.UserRole
 import com.tfg.domain.util.ResultOf
 
 @Composable
 fun PublicationsList(
     modifier: Modifier,
     result: ResultOf<List<Publication>>,
+    customerRes: ResultOf<User?>,
     onNavToArticles: (String) -> Unit,
     showErrorSnackBar: (Throwable?) -> Unit
 ) {
@@ -38,19 +41,31 @@ fun PublicationsList(
             if (result.data.isEmpty()) {
                 EmptyList(text = "No publications found!", modifier = Modifier)
             } else {
-                LazyColumn(
-                    modifier = modifier,
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                    state = rememberLazyListState()
-                ) {
-                    items(
-                        items = result.data,
-                        key = { item: Publication -> item.id }
+                if (customerRes is ResultOf.Success && customerRes.data != null) {
+
+                    val customer = customerRes.data
+
+                    var publications = result.data
+
+                    if (customer?.role == UserRole.AUTHOR) {
+                        publications = publications.filter { it.id == customer.publicationId }
+                    }
+
+                    LazyColumn(
+                        modifier = modifier,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                        state = rememberLazyListState()
                     ) {
-                        Publication(modifier = Modifier, it, onNavToArticles)
+                        items(
+                            items = publications,
+                            key = { item: Publication -> item.id }
+                        ) {
+                            Publication(modifier = Modifier, it, onNavToArticles)
+                        }
                     }
                 }
+
             }
         }
         is ResultOf.Loading -> Loader(modifier = Modifier)

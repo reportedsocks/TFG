@@ -8,5 +8,9 @@ data class User(
     val email: String?,
     val phoneNumber: String?,
     val avatar: Uri?,
-    val role: UserRole = UserRole.AUTHOR
+    val role: UserRole = UserRole.AUTHOR,
+    val publicationId: String? = null,
+    val articleId1: String? = null,
+    val articleId2: String? = null,
+    val articleId3: String? = null
 )

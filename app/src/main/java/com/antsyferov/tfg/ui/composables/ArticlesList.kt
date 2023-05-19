@@ -17,12 +17,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Article
+import com.tfg.domain.models.ui.User
+import com.tfg.domain.models.ui.UserRole
 import com.tfg.domain.util.ResultOf
 
 @Composable
 fun ArticlesList(
     modifier: Modifier,
     result: ResultOf<List<Article>>,
+    customerRes: ResultOf<User?>,
     onNavToArticle: (String, String) -> Unit,
     showErrorSnackBar: (Throwable?) -> Unit
 ) {
@@ -32,25 +35,38 @@ fun ArticlesList(
             if (result.data.isEmpty()) {
                 EmptyList(text = "No articles at the moment!", modifier = Modifier)
             } else {
-                LazyVerticalGrid(
-                    modifier = modifier,
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                    state = rememberLazyGridState()
-                ) {
-                    items(
-                        items = result.data,
-                        key = { item: Article -> item.id }
+                if (customerRes is ResultOf.Success && customerRes.data != null) {
+
+                    val customer = customerRes.data
+
+                    var articles = result.data
+
+                    if (customer?.role == UserRole.REVIEWER) {
+                        val allowedArticles = listOf(customer.articleId1, customer.articleId2, customer.articleId3)
+                        articles = articles.filter { allowedArticles.contains(it.id) }
+                    }
+
+                    LazyVerticalGrid(
+                        modifier = modifier,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                        state = rememberLazyGridState()
                     ) {
-                        Article(
-                            modifier = Modifier,
-                            article = it,
-                            onNavToArticle = onNavToArticle
-                        )
+                        items(
+                            items = articles,
+                            key = { item: Article -> item.id }
+                        ) {
+                            Article(
+                                modifier = Modifier,
+                                article = it,
+                                onNavToArticle = onNavToArticle
+                            )
+                        }
                     }
                 }
+
             }
             
         }

@@ -43,6 +43,7 @@ class ReviewsUseCaseImpl @Inject constructor(
                         description = review.description,
                         relevance = review.relevance,
                         comment = review.comment,
+                        reviewAuthorId = review.reviewAuthorId,
                         createdAt = review.createdAt
                     )
                 }

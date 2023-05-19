@@ -11,7 +11,7 @@ interface UserDataSource {
 
     fun getUserRole(userId: String): Flow<ResultOf<Int>>
 
-    suspend fun setUserRole(userId: String, role: Int): ResultOf<Unit>
+    suspend fun setUserRole(userId: String, role: Int, selectedPublication: String?, selectedArticle1: String?, selectedArticle2: String?, selectedArticle3: String?): ResultOf<Unit>
 
     fun getAuthor(userId: String): Flow<ResultOf<Author>>
 

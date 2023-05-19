@@ -74,12 +74,14 @@ fun NavigationGraph(
             val userId = backStackEntry.arguments?.getString(Screen.UserView.params.first()) ?: ""
             val customer by viewModel.getCustomerById(userId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
 
+
             UserView(
+                viewModel = viewModel,
                 customerResult = customer,
                 showErrorSnackBar = { e -> showErrorSnackBar(e) },
-                onSaveButtonClick = { id, role ->
+                onSaveButtonClick = { role, selectedPublication, selectedArticle1, selectedArticle2, selectedArticle3 ->
                     coroutineScope.launch {
-                        viewModel.setUserRole(id, role)
+                        viewModel.setUserRole(userId, role, selectedPublication, selectedArticle1, selectedArticle2, selectedArticle3)
                     }
                     navController.popBackStack()
                 }
@@ -106,10 +108,12 @@ fun NavigationGraph(
         composable(Screen.PublicationsList.route) {
 
             val result by viewModel.publicationsFlow.collectAsStateWithLifecycle()
+            val customerRes by viewModel.getCustomerById(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
 
             PublicationsList(
                 modifier = Modifier,
                 result = result,
+                customerRes = customerRes,
                 showErrorSnackBar = { e -> showErrorSnackBar(e) },
                 onNavToArticles = { publicationId ->
                     navController.navigate(Screen.ArticlesList.getNavDirection(publicationId))
@@ -145,9 +149,11 @@ fun NavigationGraph(
             val result by viewModel.getArticlesByUser(user.id ?: "").collectAsStateWithLifecycle(
                 initialValue = ResultOf.Loading
             )
+            val customerRes by viewModel.getCustomerById(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
             ArticlesList(
                 modifier = Modifier,
                 result = result,
+                customerRes = customerRes,
                 onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId, Screen.STUB)) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
@@ -161,9 +167,11 @@ fun NavigationGraph(
             val result by viewModel.getArticles(publicationId).collectAsStateWithLifecycle(
                 initialValue = ResultOf.Loading
             )
+            val customerRes by viewModel.getCustomerById(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
             ArticlesList(
                 modifier = Modifier,
                 result = result,
+                customerRes = customerRes,
                 onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId, publicationId)) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)}
             )
@@ -303,8 +311,11 @@ fun NavigationGraph(
             val authorId = backStackEntry.arguments?.getString(Screen.ArticleView.params[1]) ?: ""
 
             val reviewsResult by viewModel.getReviews(articleId).collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+            val customerRes by viewModel.getCustomerById(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
 
             ReviewsList(
+                articleId = articleId,
+                customerRes = customerRes,
                 result = reviewsResult,
                 showErrorSnackBar = { e -> showErrorSnackBar(e) }
             )

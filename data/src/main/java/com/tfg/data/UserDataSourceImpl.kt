@@ -48,9 +48,34 @@ class UserDataSourceImpl @Inject constructor(
         awaitClose()
     }
 
-    override suspend fun setUserRole(userId: String, role: Int): ResultOf<Unit> = suspendCoroutine { cont ->
+    override suspend fun setUserRole(
+        userId: String,
+        role: Int,
+        selectedPublication: String?,
+        selectedArticle1: String?,
+        selectedArticle2: String?,
+        selectedArticle3: String?
+    ): ResultOf<Unit> = suspendCoroutine { cont ->
+
+        val changesMap = mutableMapOf<String, Any>()
+        changesMap["role"] = role
+
+        selectedPublication?.let {
+            changesMap.put("publicationId", it)
+        }
+        selectedArticle1?.let {
+            changesMap.put("articleId1", it)
+        }
+        selectedArticle2?.let {
+            changesMap.put("articleId2", it)
+        }
+        selectedArticle3?.let {
+            changesMap.put("articleId3", it)
+        }
+
+
         db.collection("users").document(userId).set(
-            mapOf("role" to role),
+            changesMap,
             SetOptions.merge()
         ).addOnSuccessListener {
             cont.resume(ResultOf.Success(Unit))

@@ -39,7 +39,11 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.antsyferov.tfg.MainViewModel
+import com.tfg.domain.models.ui.Article
+import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.models.ui.User
 import com.tfg.domain.models.ui.UserRole
 import com.tfg.domain.util.ResultOf
@@ -47,9 +51,10 @@ import com.tfg.domain.util.ResultOf
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun UserView(
+    viewModel: MainViewModel,
     customerResult: ResultOf<User?>,
     showErrorSnackBar: (Throwable?) -> Unit,
-    onSaveButtonClick: (String, UserRole) -> Unit
+    onSaveButtonClick: (UserRole, String?, String?, String?, String?) -> Unit
 ) {
 
     if (customerResult is ResultOf.Loading) {
@@ -115,7 +120,10 @@ fun UserView(
                         enabled = false,
                         label = { Text(text = "Email:") },
                         maxLines = 5,
-                        colors = TextFieldDefaults.textFieldColors(disabledTextColor = MaterialTheme.colors.onBackground, disabledLabelColor = MaterialTheme.colors.onBackground),
+                        colors = TextFieldDefaults.textFieldColors(
+                            disabledTextColor = MaterialTheme.colors.onBackground,
+                            disabledLabelColor = MaterialTheme.colors.onBackground
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -129,7 +137,10 @@ fun UserView(
                         enabled = false,
                         label = { Text(text = "Phone:") },
                         maxLines = 5,
-                        colors = TextFieldDefaults.textFieldColors(disabledTextColor = MaterialTheme.colors.onBackground, disabledLabelColor = MaterialTheme.colors.onBackground),
+                        colors = TextFieldDefaults.textFieldColors(
+                            disabledTextColor = MaterialTheme.colors.onBackground,
+                            disabledLabelColor = MaterialTheme.colors.onBackground
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -187,18 +198,269 @@ fun UserView(
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                val publicationsRes by viewModel.publicationsFlow.collectAsStateWithLifecycle()
+                var selectedPublication: Publication? by remember { mutableStateOf(null) }
+                var selectedArticle1: Article? by remember { mutableStateOf(null) }
+                var selectedArticle2: Article? by remember { mutableStateOf(null) }
+                var selectedArticle3: Article? by remember { mutableStateOf(null) }
 
-                Button(
-                    onClick = { onSaveButtonClick.invoke(customer.id ?: "", selectedItemType) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "Save", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                if (publicationsRes is ResultOf.Success) {
+                    val publications = (publicationsRes as ResultOf.Success).data
+                    selectedPublication = publications.find { customer.publicationId == it.id }
+                    var expandedPublication by remember { mutableStateOf(false) }
+                    var selectedPublicationTitle by remember { mutableStateOf(selectedPublication?.title ?: "") }
+
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        ExposedDropdownMenuBox(
+                            expanded = expandedPublication,
+                            onExpandedChange = {
+                                expandedPublication = !expandedPublication
+                            }
+                        ) {
+                            OutlinedTextField(
+                                value = selectedPublicationTitle,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text(text = "Available publication") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPublication) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expandedPublication,
+                                onDismissRequest = {
+                                    expandedPublication = false
+                                    focusManager.clearFocus()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(color = MaterialTheme.colors.primary)
+                            ) {
+                                publications.forEach { item ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            selectedPublication = item
+                                            selectedPublicationTitle = item.title
+                                            expandedPublication = false
+                                            focusManager.clearFocus()
+                                        }
+                                    ) {
+                                        Text(
+                                            text = item.title,
+                                            style = MaterialTheme.typography.body1
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    val articlesRes by viewModel.getArticles(selectedPublication?.id ?: "")
+                        .collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+
+                    if (articlesRes is ResultOf.Success && customer.role == UserRole.REVIEWER) {
+                        val articles = (articlesRes as ResultOf.Success).data
+
+                        var expandedArticle1 by remember { mutableStateOf(false) }
+                        var selectedArticleTitle1 by remember { mutableStateOf(selectedArticle1?.title ?: "") }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            ExposedDropdownMenuBox(
+                                expanded = expandedArticle1,
+                                onExpandedChange = {
+                                    expandedArticle1 = !expandedArticle1
+                                }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedArticleTitle1,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text(text = "Available article 1") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = expandedArticle1
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = expandedArticle1,
+                                    onDismissRequest = {
+                                        expandedArticle1 = false
+                                        focusManager.clearFocus()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(color = MaterialTheme.colors.primary)
+                                ) {
+                                    articles.forEach { item ->
+                                        DropdownMenuItem(
+                                            onClick = {
+                                                selectedArticle1 = item
+                                                selectedArticleTitle1 = item.title
+                                                expandedArticle1 = false
+                                                focusManager.clearFocus()
+                                            }
+                                        ) {
+                                            Text(
+                                                text = item.title,
+                                                style = MaterialTheme.typography.body1
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+
+                        var expandedArticle2 by remember { mutableStateOf(false) }
+                        var selectedArticleTitle2 by remember { mutableStateOf(selectedArticle2?.title ?: "") }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            ExposedDropdownMenuBox(
+                                expanded = expandedArticle2,
+                                onExpandedChange = {
+                                    expandedArticle2 = !expandedArticle2
+                                }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedArticleTitle2,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text(text = "Available article 2") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = expandedArticle2
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = expandedArticle2,
+                                    onDismissRequest = {
+                                        expandedArticle2 = false
+                                        focusManager.clearFocus()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(color = MaterialTheme.colors.primary)
+                                ) {
+                                    articles.forEach { item ->
+                                        DropdownMenuItem(
+                                            onClick = {
+                                                selectedArticle2 = item
+                                                selectedArticleTitle2 = item.title
+                                                expandedArticle2 = false
+                                                focusManager.clearFocus()
+                                            }
+                                        ) {
+                                            Text(
+                                                text = item.title,
+                                                style = MaterialTheme.typography.body1
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+
+                        var expandedArticle3 by remember { mutableStateOf(false) }
+                        var selectedArticleTitle3 by remember { mutableStateOf(selectedArticle3?.title ?: "") }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            ExposedDropdownMenuBox(
+                                expanded = expandedArticle3,
+                                onExpandedChange = {
+                                    expandedArticle3 = !expandedArticle3
+                                }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedArticleTitle3,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text(text = "Available article 3") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = expandedArticle3
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = expandedArticle3,
+                                    onDismissRequest = {
+                                        expandedArticle3 = false
+                                        focusManager.clearFocus()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(color = MaterialTheme.colors.primary)
+                                ) {
+                                    articles.forEach { item ->
+                                        DropdownMenuItem(
+                                            onClick = {
+                                                selectedArticle3 = item
+                                                selectedArticleTitle3 = item.title
+                                                expandedArticle3 = false
+                                                focusManager.clearFocus()
+                                            }
+                                        ) {
+                                            Text(
+                                                text = item.title,
+                                                style = MaterialTheme.typography.body1
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+
+                    }
+
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Button(
+                        onClick = {
+                            onSaveButtonClick.invoke(
+                                selectedItemType,
+                                selectedPublication?.id,
+                                selectedArticle1?.id,
+                                selectedArticle2?.id,
+                                selectedArticle3?.id
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Save",
+                            modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
+                        )
+                    }
+
+
                 }
-
-
             }
-        }
 
+        }
     }
 }

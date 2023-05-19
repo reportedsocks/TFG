@@ -6,5 +6,9 @@ data class Customer(
     val email: String = "",
     val phone: String = "",
     val photoUrl: String = "",
-    val role: Int = 0
+    val role: Int = 0,
+    val publicationId: String? = null,
+    val articleId1: String? = null,
+    val articleId2: String? = null,
+    val articleId3: String? = null
 )

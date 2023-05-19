@@ -51,8 +51,15 @@ class ProfileUseCaseImpl @Inject constructor(
         return userDataSource.addUser(user.id ?: "", user.name ?: "", user.email ?: "", user.phoneNumber ?: "", user.avatar?.toString() ?: "")
     }
 
-    override suspend fun setUserRole(userId: String, role: UserRole): ResultOf<Unit> {
-        return userDataSource.setUserRole(userId, role.num)
+    override suspend fun setUserRole(
+        userId: String,
+        role: UserRole,
+        selectedPublication: String?,
+        selectedArticle1: String?,
+        selectedArticle2: String?,
+        selectedArticle3: String?
+    ): ResultOf<Unit> {
+        return userDataSource.setUserRole(userId, role.num, selectedPublication, selectedArticle1, selectedArticle2, selectedArticle3)
     }
 
     override fun getAuthor(userId: String): Flow<ResultOf<Author>> {
@@ -83,7 +90,11 @@ class ProfileUseCaseImpl @Inject constructor(
                     1 -> UserRole.REVIEWER
                     2 -> UserRole.ADMIN
                     else -> UserRole.AUTHOR
-                }
+                },
+                    customer.publicationId,
+                    customer.articleId1,
+                    customer.articleId2,
+                    customer.articleId3
                 )
                 }
             }
