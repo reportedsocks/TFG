@@ -152,11 +152,12 @@ fun NavigationGraph(
             )
             val customerRes by viewModel.getCustomerById(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
             ArticlesList(
-                modifier = Modifier,
                 result = result,
                 customerRes = customerRes,
                 onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId, Screen.STUB)) },
-                showErrorSnackBar = { e -> showErrorSnackBar(e)}
+                showErrorSnackBar = { e -> showErrorSnackBar(e)},
+                isSelectModeAvailable = false,
+                onToggleSelect = {_, _ -> }
             )
         }
 
@@ -165,16 +166,24 @@ fun NavigationGraph(
             arguments = listOf(navArgument(Screen.ArticlesList.params.first()) { type = NavType.StringType })
         ) { backStackEntry ->
             val publicationId = backStackEntry.arguments?.getString(Screen.ArticlesList.params.first()) ?: ""
-            val result by viewModel.getArticles(publicationId).collectAsStateWithLifecycle(
+            viewModel.getArticles(publicationId)
+
+            val result by viewModel.articlesFlow.collectAsStateWithLifecycle(
                 initialValue = ResultOf.Loading
             )
+
             val customerRes by viewModel.getCustomerById(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
             ArticlesList(
-                modifier = Modifier,
                 result = result,
                 customerRes = customerRes,
                 onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId, publicationId)) },
-                showErrorSnackBar = { e -> showErrorSnackBar(e)}
+                showErrorSnackBar = { e -> showErrorSnackBar(e)},
+                isSelectModeAvailable = true,
+                onToggleSelect = {articleId, selection ->
+                    coroutineScope.launch {
+                        viewModel.updateArticleSelection(publicationId, articleId, selection)
+                    }
+                }
             )
         }
 

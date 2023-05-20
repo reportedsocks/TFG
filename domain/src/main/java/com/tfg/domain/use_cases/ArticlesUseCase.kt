@@ -22,4 +22,6 @@ interface ArticlesUseCase {
 
     suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit>
 
+    suspend fun updateArticleSelection(publicationId: String, articleId: String, selection: Boolean): ResultOf<Unit>
+
 }

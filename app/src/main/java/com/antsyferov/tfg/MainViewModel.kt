@@ -88,8 +88,15 @@ class MainViewModel @Inject constructor(
         return reviewsUseCase.getReviews(articleId)
     }
 
-    fun getArticles(publicationId: String): Flow<ResultOf<List<Article>>> {
-        return articlesUseCase.getArticles(publicationId)
+    private val _articlesFlow: MutableStateFlow<ResultOf<List<Article>>> = MutableStateFlow(ResultOf.Loading)
+    val articlesFlow = _articlesFlow.asStateFlow()
+
+    fun getArticles(publicationId: String) {
+        viewModelScope.launch {
+            articlesUseCase.getArticles(publicationId).collect {
+                _articlesFlow.value = it
+            }
+        }
     }
 
     fun getArticle(articleId: String, authorId: String): Flow<ResultOf<Article>> {
@@ -144,6 +151,10 @@ class MainViewModel @Inject constructor(
             if (email != user.email) email else null,
             uri
         )
+    }
+
+    suspend fun updateArticleSelection(publicationId: String, articleId: String, selection: Boolean): ResultOf<Unit> {
+        return articlesUseCase.updateArticleSelection(publicationId, articleId, selection)
     }
 
     fun validateName(name: String): Int? {

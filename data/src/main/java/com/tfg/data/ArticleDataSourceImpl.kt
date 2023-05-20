@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -220,6 +221,23 @@ class ArticleDataSourceImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    override suspend fun updateArticle(
+        publicationId: String,
+        articleId: String,
+        selection: Boolean
+    ): ResultOf<Unit> = suspendCoroutine { cont ->
+
+        db.collection("publications/$publicationId/articles").document(articleId).set(
+            mapOf("isSelected" to selection),
+            SetOptions.merge()
+        ).addOnSuccessListener {
+            cont.resume(ResultOf.Success(Unit))
+        }.addOnFailureListener { e ->
+            cont.resume(ResultOf.Failure(e))
+        }
+
     }
 
 }

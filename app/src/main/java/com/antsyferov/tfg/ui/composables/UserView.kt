@@ -263,8 +263,8 @@ fun UserView(
 
 
                     if (!selectedPublication?.id.isNullOrEmpty()) {
-                        val articlesRes by viewModel.getArticles(selectedPublication?.id ?: "")
-                            .collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+                        viewModel.getArticles(selectedPublication?.id ?: "")
+                        val articlesRes by viewModel.articlesFlow.collectAsStateWithLifecycle()
 
                         if (articlesRes is ResultOf.Success && customer.role == UserRole.REVIEWER) {
                             val articles = (articlesRes as ResultOf.Success).data

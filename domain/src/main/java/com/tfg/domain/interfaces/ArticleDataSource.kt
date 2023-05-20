@@ -23,4 +23,6 @@ interface ArticleDataSource {
 
     suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit>
 
+    suspend fun updateArticle(publicationId: String, articleId: String, selection: Boolean): ResultOf<Unit>
+
 }

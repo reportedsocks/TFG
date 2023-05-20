@@ -8,5 +8,6 @@ data class Article(
     val description: String,
     val characterCount: Int,
     val authorId: String,
-    val createdAt: Date
+    val createdAt: Date,
+    var isSelected: Boolean
 )

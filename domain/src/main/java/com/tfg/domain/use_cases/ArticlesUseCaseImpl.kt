@@ -23,7 +23,8 @@ class ArticlesUseCaseImpl @Inject constructor(
                         firebaseArticle.description,
                         firebaseArticle.characterCount,
                         firebaseArticle.author,
-                        firebaseArticle.createdAt
+                        firebaseArticle.createdAt,
+                        firebaseArticle.isSelected
                     )
                 }
             }
@@ -40,7 +41,8 @@ class ArticlesUseCaseImpl @Inject constructor(
                         firebaseArticle.description,
                         firebaseArticle.characterCount,
                         firebaseArticle.author,
-                        firebaseArticle.createdAt
+                        firebaseArticle.createdAt,
+                        firebaseArticle.isSelected
                     )
                 }
             }
@@ -56,7 +58,8 @@ class ArticlesUseCaseImpl @Inject constructor(
                     description,
                     characterCount,
                     author,
-                    createdAt
+                    createdAt,
+                    isSelected
                 )
             }
         }
@@ -74,7 +77,8 @@ class ArticlesUseCaseImpl @Inject constructor(
                     description,
                     characterCount,
                     author,
-                    createdAt
+                    createdAt,
+                    isSelected
                 )
             }
         }
@@ -113,5 +117,13 @@ class ArticlesUseCaseImpl @Inject constructor(
 
     override suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit> {
         return articleDataSource.updatePdf(articleId, uri)
+    }
+
+    override suspend fun updateArticleSelection(
+        publicationId: String,
+        articleId: String,
+        selection: Boolean
+    ): ResultOf<Unit> {
+        return articleDataSource.updateArticle(publicationId, articleId, selection)
     }
 }
