@@ -20,4 +20,6 @@ interface ArticlesUseCase {
 
     suspend fun addArticle(publicationId: String, title: String, description: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit>
 
+    suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit>
+
 }

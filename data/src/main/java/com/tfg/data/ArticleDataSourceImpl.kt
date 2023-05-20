@@ -204,4 +204,22 @@ class ArticleDataSourceImpl @Inject constructor(
         }
     }
 
+    override suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit> = suspendCoroutine { cont ->
+        val reference = storage.reference.child("articles/$articleId.pdf")
+        contentResolver.openInputStream(uri)?.let { inputStream ->
+            reference.putStream(inputStream).apply {
+                addOnSuccessListener {
+                    Log.d(TAG_S, it.toString())
+                    inputStream.run { close() }
+                    cont.resume(ResultOf.Success(Unit))
+                }
+                addOnFailureListener {
+                    Log.d(TAG_S, it.toString())
+                    inputStream.run { close() }
+                    cont.resume(ResultOf.Failure(it))
+                }
+            }
+        }
+    }
+
 }

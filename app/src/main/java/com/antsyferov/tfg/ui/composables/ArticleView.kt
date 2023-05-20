@@ -39,10 +39,13 @@ fun ArticleView(
     articleResult: ResultOf<Article>,
     downloadUri: ResultOf<Uri>,
     authorResult: ResultOf<Author>,
+    canUpdatePdf: Boolean,
+    showSaveButton: Boolean,
     showErrorSnackBar: (Throwable?) -> Unit,
     openBrowser: (Uri) -> Unit,
     openViewer: (Uri, String) -> Unit,
-    openReviews: () -> Unit
+    openReviews: () -> Unit,
+    onOpenFile: () -> Unit
 ) {
 
     if (articleResult is ResultOf.Loading || downloadUri is ResultOf.Loading || authorResult is ResultOf.Loading) {
@@ -173,6 +176,21 @@ fun ArticleView(
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
+
+            if (canUpdatePdf) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { onOpenFile.invoke() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (showSaveButton) "Save selected PDF" else "Update PDF",
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+            }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

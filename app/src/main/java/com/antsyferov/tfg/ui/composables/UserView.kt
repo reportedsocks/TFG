@@ -206,7 +206,9 @@ fun UserView(
 
                 if (publicationsRes is ResultOf.Success) {
                     val publications = (publicationsRes as ResultOf.Success).data
-                    selectedPublication = publications.find { customer.publicationId == it.id }
+                    publications.find { customer.publicationId == it.id }?.let {
+                        selectedPublication = it
+                    }
                     var expandedPublication by remember { mutableStateOf(false) }
                     var selectedPublicationTitle by remember { mutableStateOf(selectedPublication?.title ?: "") }
 
@@ -260,181 +262,186 @@ fun UserView(
                     }
 
 
-                    val articlesRes by viewModel.getArticles(selectedPublication?.id ?: "")
-                        .collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+                    if (!selectedPublication?.id.isNullOrEmpty()) {
+                        val articlesRes by viewModel.getArticles(selectedPublication?.id ?: "")
+                            .collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
 
-                    if (articlesRes is ResultOf.Success && customer.role == UserRole.REVIEWER) {
-                        val articles = (articlesRes as ResultOf.Success).data
+                        if (articlesRes is ResultOf.Success && customer.role == UserRole.REVIEWER) {
+                            val articles = (articlesRes as ResultOf.Success).data
 
-                        var expandedArticle1 by remember { mutableStateOf(false) }
-                        var selectedArticleTitle1 by remember { mutableStateOf(selectedArticle1?.title ?: "") }
+                            var expandedArticle1 by remember { mutableStateOf(false) }
+                            var selectedArticleTitle1 by remember { mutableStateOf(selectedArticle1?.title ?: "") }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            ExposedDropdownMenuBox(
-                                expanded = expandedArticle1,
-                                onExpandedChange = {
-                                    expandedArticle1 = !expandedArticle1
-                                }
-                            ) {
-                                OutlinedTextField(
-                                    value = selectedArticleTitle1,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text(text = "Available article 1") },
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = expandedArticle1
-                                        )
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                )
-
-                                ExposedDropdownMenu(
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                ExposedDropdownMenuBox(
                                     expanded = expandedArticle1,
-                                    onDismissRequest = {
-                                        expandedArticle1 = false
-                                        focusManager.clearFocus()
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(color = MaterialTheme.colors.primary)
+                                    onExpandedChange = {
+                                        expandedArticle1 = !expandedArticle1
+                                    }
                                 ) {
-                                    articles.forEach { item ->
-                                        DropdownMenuItem(
-                                            onClick = {
-                                                selectedArticle1 = item
-                                                selectedArticleTitle1 = item.title
-                                                expandedArticle1 = false
-                                                focusManager.clearFocus()
-                                            }
-                                        ) {
-                                            Text(
-                                                text = item.title,
-                                                style = MaterialTheme.typography.body1
+                                    OutlinedTextField(
+                                        value = selectedArticleTitle1,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text(text = "Available article 1") },
+                                        trailingIcon = {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                                expanded = expandedArticle1
                                             )
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+
+                                    ExposedDropdownMenu(
+                                        expanded = expandedArticle1,
+                                        onDismissRequest = {
+                                            expandedArticle1 = false
+                                            focusManager.clearFocus()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(color = MaterialTheme.colors.primary)
+                                    ) {
+                                        articles.forEach { item ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    selectedArticle1 = item
+                                                    selectedArticleTitle1 = item.title
+                                                    expandedArticle1 = false
+                                                    focusManager.clearFocus()
+                                                }
+                                            ) {
+                                                Text(
+                                                    text = item.title,
+                                                    style = MaterialTheme.typography.body1
+                                                )
+                                            }
                                         }
                                     }
                                 }
+
                             }
 
-                        }
+                            var expandedArticle2 by remember { mutableStateOf(false) }
+                            var selectedArticleTitle2 by remember { mutableStateOf(selectedArticle2?.title ?: "") }
 
-                        var expandedArticle2 by remember { mutableStateOf(false) }
-                        var selectedArticleTitle2 by remember { mutableStateOf(selectedArticle2?.title ?: "") }
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            ExposedDropdownMenuBox(
-                                expanded = expandedArticle2,
-                                onExpandedChange = {
-                                    expandedArticle2 = !expandedArticle2
-                                }
-                            ) {
-                                OutlinedTextField(
-                                    value = selectedArticleTitle2,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text(text = "Available article 2") },
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = expandedArticle2
-                                        )
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                )
-
-                                ExposedDropdownMenu(
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                ExposedDropdownMenuBox(
                                     expanded = expandedArticle2,
-                                    onDismissRequest = {
-                                        expandedArticle2 = false
-                                        focusManager.clearFocus()
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(color = MaterialTheme.colors.primary)
+                                    onExpandedChange = {
+                                        expandedArticle2 = !expandedArticle2
+                                    }
                                 ) {
-                                    articles.forEach { item ->
-                                        DropdownMenuItem(
-                                            onClick = {
-                                                selectedArticle2 = item
-                                                selectedArticleTitle2 = item.title
-                                                expandedArticle2 = false
-                                                focusManager.clearFocus()
-                                            }
-                                        ) {
-                                            Text(
-                                                text = item.title,
-                                                style = MaterialTheme.typography.body1
+                                    OutlinedTextField(
+                                        value = selectedArticleTitle2,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text(text = "Available article 2") },
+                                        trailingIcon = {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                                expanded = expandedArticle2
                                             )
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+
+                                    ExposedDropdownMenu(
+                                        expanded = expandedArticle2,
+                                        onDismissRequest = {
+                                            expandedArticle2 = false
+                                            focusManager.clearFocus()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(color = MaterialTheme.colors.primary)
+                                    ) {
+                                        articles.forEach { item ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    selectedArticle2 = item
+                                                    selectedArticleTitle2 = item.title
+                                                    expandedArticle2 = false
+                                                    focusManager.clearFocus()
+                                                }
+                                            ) {
+                                                Text(
+                                                    text = item.title,
+                                                    style = MaterialTheme.typography.body1
+                                                )
+                                            }
                                         }
                                     }
                                 }
+
                             }
 
-                        }
+                            var expandedArticle3 by remember { mutableStateOf(false) }
+                            var selectedArticleTitle3 by remember { mutableStateOf(selectedArticle3?.title ?: "") }
 
-                        var expandedArticle3 by remember { mutableStateOf(false) }
-                        var selectedArticleTitle3 by remember { mutableStateOf(selectedArticle3?.title ?: "") }
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            ExposedDropdownMenuBox(
-                                expanded = expandedArticle3,
-                                onExpandedChange = {
-                                    expandedArticle3 = !expandedArticle3
-                                }
-                            ) {
-                                OutlinedTextField(
-                                    value = selectedArticleTitle3,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text(text = "Available article 3") },
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = expandedArticle3
-                                        )
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                )
-
-                                ExposedDropdownMenu(
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                ExposedDropdownMenuBox(
                                     expanded = expandedArticle3,
-                                    onDismissRequest = {
-                                        expandedArticle3 = false
-                                        focusManager.clearFocus()
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(color = MaterialTheme.colors.primary)
+                                    onExpandedChange = {
+                                        expandedArticle3 = !expandedArticle3
+                                    }
                                 ) {
-                                    articles.forEach { item ->
-                                        DropdownMenuItem(
-                                            onClick = {
-                                                selectedArticle3 = item
-                                                selectedArticleTitle3 = item.title
-                                                expandedArticle3 = false
-                                                focusManager.clearFocus()
-                                            }
-                                        ) {
-                                            Text(
-                                                text = item.title,
-                                                style = MaterialTheme.typography.body1
+                                    OutlinedTextField(
+                                        value = selectedArticleTitle3,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text(text = "Available article 3") },
+                                        trailingIcon = {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                                expanded = expandedArticle3
                                             )
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+
+                                    ExposedDropdownMenu(
+                                        expanded = expandedArticle3,
+                                        onDismissRequest = {
+                                            expandedArticle3 = false
+                                            focusManager.clearFocus()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(color = MaterialTheme.colors.primary)
+                                    ) {
+                                        articles.forEach { item ->
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    selectedArticle3 = item
+                                                    selectedArticleTitle3 = item.title
+                                                    expandedArticle3 = false
+                                                    focusManager.clearFocus()
+                                                }
+                                            ) {
+                                                Text(
+                                                    text = item.title,
+                                                    style = MaterialTheme.typography.body1
+                                                )
+                                            }
                                         }
                                     }
                                 }
+
                             }
 
                         }
-
                     }
+
+
+
 
 
                     Spacer(modifier = Modifier.weight(1f))

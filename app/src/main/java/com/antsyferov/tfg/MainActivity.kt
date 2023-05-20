@@ -209,7 +209,9 @@ class MainActivity : ComponentActivity() {
 
                             var isAllowedToReview by remember { mutableStateOf(false) }
 
-                            isAllowedToReview = viewModel.checkIfUserCanPostReview(articleId, authorId, user.id ?: "", role)
+                            LaunchedEffect(key1 = articleId) {
+                                isAllowedToReview = viewModel.checkIfUserCanPostReview(articleId, authorId, user.id ?: "", role)
+                            }
 
                             if(isAllowedToReview) {
                                 FloatingActionButton(onClick = {

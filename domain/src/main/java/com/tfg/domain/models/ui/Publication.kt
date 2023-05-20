@@ -15,7 +15,7 @@ data class Publication(
 ) {
 
     enum class Status {
-        OPEN, IN_REVIEW, CLOSED
+        OPEN, IN_REVIEW, FINAL_SUBMIT, CLOSED
     }
 
 }

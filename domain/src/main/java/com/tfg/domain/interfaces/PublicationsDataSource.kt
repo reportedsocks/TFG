@@ -11,6 +11,8 @@ interface PublicationsDataSource {
 
     suspend fun getPublicationIdByArticle(articleId: String, authorId: String): ResultOf<String>
 
+    suspend fun getPublication(publicationId: String): ResultOf<Publication>
+
     suspend fun addPublication(publication: Publication): ResultOf<Unit>
 
 }

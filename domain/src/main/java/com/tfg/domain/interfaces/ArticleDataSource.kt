@@ -21,4 +21,6 @@ interface ArticleDataSource {
 
     suspend fun savePdf(articleId: String, uri: Uri): ResultOf<Unit>
 
+    suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit>
+
 }

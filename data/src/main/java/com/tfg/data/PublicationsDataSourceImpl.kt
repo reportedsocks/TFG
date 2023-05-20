@@ -90,4 +90,21 @@ class PublicationsDataSourceImpl @Inject constructor(): PublicationsDataSource {
 
     }
 
+    override suspend fun getPublication(publicationId: String): ResultOf<Publication> = suspendCoroutine { cont ->
+        db.collection("publications")
+            .whereEqualTo("id", publicationId)
+            .get()
+            .addOnSuccessListener {
+                val publication = it.documents.firstOrNull()?.toObject<Publication>()
+                if (publication != null) {
+                    cont.resume(ResultOf.Success(publication))
+                } else {
+                    cont.resume(ResultOf.Failure(null))
+                }
+            }
+            .addOnFailureListener { e ->
+                cont.resume(ResultOf.Failure(e))
+            }
+    }
+
 }

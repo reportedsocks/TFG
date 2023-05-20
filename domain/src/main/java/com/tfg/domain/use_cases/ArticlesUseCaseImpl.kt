@@ -110,4 +110,8 @@ class ArticlesUseCaseImpl @Inject constructor(
             resultId.transform {  }
 
     }
+
+    override suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit> {
+        return articleDataSource.updatePdf(articleId, uri)
+    }
 }

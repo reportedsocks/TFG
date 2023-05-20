@@ -23,6 +23,7 @@ class ReviewsDataSourceImpl @Inject constructor(): ReviewsDataSource {
     override fun getReviews(articleId: String): Flow<ResultOf<List<Review>>> = callbackFlow {
 
         val registration = db.collection("reviews")
+            .whereEqualTo("articleId", articleId)
             .addSnapshotListener { snapshot, error ->
 
                 if (error != null) {

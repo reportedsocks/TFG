@@ -29,6 +29,7 @@ import com.google.firebase.ktx.Firebase
 import com.rajat.pdfviewer.PdfViewerActivity
 import com.tfg.domain.models.ui.Review
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -235,10 +236,26 @@ fun NavigationGraph(
                 initialValue = ResultOf.Loading
             )
 
+            viewModel.getPublication(articleId, authorId)
+            val publication by viewModel.publicationFlow.collectAsStateWithLifecycle()
+
+            var allowUpdatePdf by remember { mutableStateOf(false) }
+
+            if (publication is ResultOf.Success) {
+                allowUpdatePdf =
+                    (publication as ResultOf.Success).data.status == com.tfg.domain.models.ui.Publication.Status.FINAL_SUBMIT &&
+                    authorId == user.id
+
+            }
+            val pdfUri by viewModel.fileUriFlow.collectAsStateWithLifecycle()
+            val showSaveButton = pdfUri != null
+
             ArticleView(
                 articleResult = article,
                 downloadUri = downloadUri,
                 authorResult = author,
+                canUpdatePdf = allowUpdatePdf,
+                showSaveButton = showSaveButton,
                 showErrorSnackBar = { e -> showErrorSnackBar(e) },
                 openBrowser = { uri ->
                     val i = Intent(Intent.ACTION_VIEW).apply { data = uri }
@@ -255,7 +272,25 @@ fun NavigationGraph(
                         )
                     )
                 },
-                openReviews = { navController.navigate(Screen.ReviewsList.getNavDirection(articleId, authorId))}
+                openReviews = { navController.navigate(Screen.ReviewsList.getNavDirection(articleId, authorId))},
+                onOpenFile = {
+                    if(showSaveButton) {
+                        coroutineScope.launch {
+                            pdfUri?.let { uri ->
+                                viewModel.fileUriFlow.value = null
+                                val res = viewModel.updatePdf(articleId, uri)
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    message = if (res is ResultOf.Success) "Pdf Updated!" else "Try again please"
+                                )
+                            }
+
+                        }
+
+                    } else {
+                        filePickerLauncher.launch("application/pdf")
+                    }
+
+                }
             )
         }
 

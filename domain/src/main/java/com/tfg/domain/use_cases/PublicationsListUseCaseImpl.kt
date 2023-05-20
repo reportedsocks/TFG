@@ -1,6 +1,7 @@
 package com.tfg.domain.use_cases
 
 import com.tfg.domain.interfaces.PublicationsDataSource
+import com.tfg.domain.interfaces.UserDataSource
 import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.util.ResultOf
 import com.tfg.domain.util.transform
@@ -10,7 +11,8 @@ import java.util.Date
 import javax.inject.Inject
 
 class PublicationsListUseCaseImpl @Inject constructor(
-    private val publicationsDataSource: PublicationsDataSource
+    private val publicationsDataSource: PublicationsDataSource,
+    private val userDataSource: UserDataSource
 ): PublicationsListUseCase {
 
     override fun getPublications(): Flow<ResultOf<List<Publication>>> {
@@ -21,7 +23,7 @@ class PublicationsListUseCaseImpl @Inject constructor(
                        id = firebasePublication.id,
                        title = firebasePublication.title,
                        description = firebasePublication.description,
-                       status = getPublicationStatus(firebasePublication.reviewDate, firebasePublication.completionDate),
+                       status = getPublicationStatus(firebasePublication.reviewDate, firebasePublication.finalSubmitDate, firebasePublication.completionDate),
                        reviewDate = firebasePublication.reviewDate,
                        finalSubmitDate = firebasePublication.finalSubmitDate,
                        completionDate = firebasePublication.completionDate
@@ -29,6 +31,25 @@ class PublicationsListUseCaseImpl @Inject constructor(
                }
            }
         }
+    }
+
+    override suspend fun getPublication(articleId: String, authorId: String): ResultOf<Publication> {
+        val resultId = publicationsDataSource.getPublicationIdByArticle(articleId, authorId)
+        return if (resultId is ResultOf.Success) {
+            val publicationId = resultId.data
+            publicationsDataSource.getPublication(publicationId).transform {
+                Publication(
+                    id = id,
+                    title = title,
+                    description = description,
+                    status = getPublicationStatus(reviewDate, finalSubmitDate, completionDate),
+                    reviewDate = reviewDate,
+                    finalSubmitDate = finalSubmitDate,
+                    completionDate = completionDate
+                )
+            }
+        } else ResultOf.Failure(null)
+
     }
 
     override suspend fun addPublication(publication: Publication): ResultOf<Unit> {
@@ -43,13 +64,15 @@ class PublicationsListUseCaseImpl @Inject constructor(
         )
     }
 
-    private fun getPublicationStatus(review: Date, completion: Date): Publication.Status {
+    private fun getPublicationStatus(review: Date, finalSubmit: Date, completion: Date): Publication.Status {
         val now = Date()
 
-        return if (review.before(now))
+        return if (now.before(review))
             Publication.Status.OPEN
-        else if (completion.before(now))
+        else if (now.before(finalSubmit))
             Publication.Status.IN_REVIEW
+        else if (now.before(completion))
+            Publication.Status.FINAL_SUBMIT
         else
             Publication.Status.CLOSED
     }

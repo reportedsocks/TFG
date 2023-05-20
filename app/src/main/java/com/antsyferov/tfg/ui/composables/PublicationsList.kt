@@ -121,6 +121,7 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                     val status = when(publication.status) {
                         Publication.Status.OPEN -> "Open"
                         Publication.Status.CLOSED -> "Closed"
+                        Publication.Status.FINAL_SUBMIT -> "Final Submit"
                         Publication.Status.IN_REVIEW -> "In Review"
                     }
                     Text(

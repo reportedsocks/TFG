@@ -1,6 +1,7 @@
 package com.antsyferov.tfg
 
 import android.net.Uri
+import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg.domain.models.ui.Article
@@ -51,18 +52,32 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun checkIfUserCanPostReview(
+    val publicationFlow: MutableStateFlow<ResultOf<Publication>> = MutableStateFlow(ResultOf.Loading)
+    fun getPublication(articleId: String, authorId: String) {
+        viewModelScope.launch {
+            publicationFlow.value = publicationsListUseCase.getPublication(articleId, authorId)
+        }
+    }
+
+    suspend fun checkIfUserCanPostReview(
         articleId: String,
         articleAuthorId: String,
         userId: String,
         userRole: UserRole
     ): Boolean {
 
+        val publicationRes = publicationsListUseCase.getPublication(articleId, articleAuthorId)
+        var isInReview = false
+
+        if (publicationRes is ResultOf.Success) {
+            isInReview = publicationRes.data.status == Publication.Status.IN_REVIEW
+        }
+
         val isAuthor = userRole == UserRole.AUTHOR
 
         val isSameUser = articleAuthorId == userId
 
-        return !isAuthor && !isSameUser
+        return !isAuthor && !isSameUser && isInReview
     }
 
     fun getUserRole(userId: String): Flow<ResultOf<UserRole>> {
@@ -99,6 +114,10 @@ class MainViewModel @Inject constructor(
 
     suspend fun addArticle(publicationId: String, title: String, description: String, characterCount: Int, user: User, uri: Uri): ResultOf<Unit> {
         return articlesUseCase.addArticle(publicationId, title, description, characterCount, user, uri)
+    }
+
+    suspend fun updatePdf(articleId: String, uri: Uri): ResultOf<Unit> {
+        return articlesUseCase.updatePdf(articleId, uri)
     }
 
     suspend fun addReview(articleId: String, articleAuthorId: String, authorId: String, review: Review): ResultOf<Unit> {

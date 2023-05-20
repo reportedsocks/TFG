@@ -43,7 +43,7 @@ fun ArticlesList(
 
                     if (customer?.role == UserRole.REVIEWER) {
                         val allowedArticles = listOf(customer.articleId1, customer.articleId2, customer.articleId3)
-                        articles = articles.filter { allowedArticles.contains(it.id) }
+                        articles = articles.filter { allowedArticles.contains(it.id) || it.authorId == customer.id }
                     }
 
                     LazyVerticalGrid(
