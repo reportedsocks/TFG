@@ -52,6 +52,20 @@ class PublicationsListUseCaseImpl @Inject constructor(
 
     }
 
+    override suspend fun getPublicationById(publicationId: String): ResultOf<Publication> {
+        return publicationsDataSource.getPublication(publicationId).transform {
+            Publication(
+                id = id,
+                title = title,
+                description = description,
+                status = getPublicationStatus(reviewDate, finalSubmitDate, completionDate),
+                reviewDate = reviewDate,
+                finalSubmitDate = finalSubmitDate,
+                completionDate = completionDate
+            )
+        }
+    }
+
     override suspend fun addPublication(publication: Publication): ResultOf<Unit> {
         return publicationsDataSource.addPublication(
             com.tfg.domain.models.data.Publication(

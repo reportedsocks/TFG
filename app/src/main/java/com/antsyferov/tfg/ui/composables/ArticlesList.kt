@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -57,6 +58,8 @@ fun ArticlesList(
                         articles = articles.filter { allowedArticles.contains(it.id) || it.authorId == customer.id }
                     }
 
+                    val list = remember { articles.toMutableStateList() }
+
                     Box(modifier = Modifier.fillMaxSize()) {
                         LazyVerticalGrid(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -66,13 +69,15 @@ fun ArticlesList(
                             state = rememberLazyGridState()
                         ) {
                             items(
-                                items = articles,
+                                items = list,
                                 key = { item: Article -> item.id }
                             ) {
                                 Article(
                                     modifier = Modifier,
                                     article = it,
                                     onNavToArticle = if (isSelectModeActive) { articleId, _, isSelected ->
+                                        val i = list.indexOf(it)
+                                        list[i] = it.copy(isSelected = !isSelected)
                                         onToggleSelect.invoke(articleId, !isSelected)
                                     } else  { articleId, authorId, _ ->
                                         onNavToArticle.invoke(articleId, authorId)
@@ -118,10 +123,7 @@ fun Article(
 ) {
 
 
-
-    var isSelected by remember { mutableStateOf(article.isSelected) }
-
-    val border = if (isSelected)
+    val border = if (article.isSelected)
         BorderStroke(width = 2.dp, color = MaterialTheme.colors.secondary)
     else null
 
@@ -130,7 +132,6 @@ fun Article(
         color = MaterialTheme.colors.primary,
         border = border,
         modifier = modifier.clickable {
-            isSelected = !isSelected
             onNavToArticle.invoke(article.id, article.authorId, article.isSelected)
         }
     ) {

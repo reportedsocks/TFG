@@ -58,6 +58,11 @@ class MainViewModel @Inject constructor(
             publicationFlow.value = publicationsListUseCase.getPublication(articleId, authorId)
         }
     }
+    fun getPublicationById(publicationId: String) {
+        viewModelScope.launch {
+            publicationFlow.value = publicationsListUseCase.getPublicationById(publicationId)
+        }
+    }
 
     suspend fun checkIfUserCanPostReview(
         articleId: String,

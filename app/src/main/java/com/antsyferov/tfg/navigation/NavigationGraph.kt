@@ -27,7 +27,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.rajat.pdfviewer.PdfViewerActivity
+import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.models.ui.Review
+import com.tfg.domain.models.ui.UserRole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -172,13 +174,23 @@ fun NavigationGraph(
                 initialValue = ResultOf.Loading
             )
 
+            var isSelectModeAvailable by remember { mutableStateOf(false) }
+
+            viewModel.getPublicationById(publicationId)
+            val publicationRes by viewModel.publicationFlow.collectAsStateWithLifecycle()
+            val userRoleRes by viewModel.getUserRole(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
+
+            isSelectModeAvailable = publicationRes is ResultOf.Success &&
+                    (publicationRes as ResultOf.Success).data.status == Publication.Status.CLOSED &&
+                    userRoleRes is ResultOf.Success && (userRoleRes as ResultOf.Success).data == UserRole.ADMIN
+
             val customerRes by viewModel.getCustomerById(user.id ?: "").collectAsStateWithLifecycle(initialValue = ResultOf.Loading)
             ArticlesList(
                 result = result,
                 customerRes = customerRes,
                 onNavToArticle = { articleId, authorId -> navController.navigate(Screen.ArticleView.getNavDirection(articleId, authorId, publicationId)) },
                 showErrorSnackBar = { e -> showErrorSnackBar(e)},
-                isSelectModeAvailable = true,
+                isSelectModeAvailable = isSelectModeAvailable,
                 onToggleSelect = {articleId, selection ->
                     coroutineScope.launch {
                         viewModel.updateArticleSelection(publicationId, articleId, selection)

@@ -29,6 +29,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.models.ui.UserRole
 import com.tfg.domain.util.ResultOf
 import dagger.hilt.android.AndroidEntryPoint
@@ -196,12 +197,18 @@ class MainActivity : ComponentActivity() {
                         val role = (userRoleResult as? ResultOf.Success)?.data ?: UserRole.AUTHOR
 
                         if (Screen.ArticlesList.route == currentRoute) {
-                            FloatingActionButton(onClick = {
-                                val publicationId = navController.currentBackStackEntry?.arguments?.getString(Screen.ArticlesList.params.first())
-                                navController.navigate(Screen.AddArticle.getNavDirection(publicationId ?: ""))
-                            }) {
-                                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                            val publicationId = navController.currentBackStackEntry?.arguments?.getString(Screen.ArticlesList.params.first()) ?: ""
+                            viewModel.getPublicationById(publicationId)
+                            val publicationRes by viewModel.publicationFlow.collectAsStateWithLifecycle()
+
+                            if(publicationRes is ResultOf.Success && (publicationRes as ResultOf.Success).data.status == Publication.Status.OPEN) {
+                                FloatingActionButton(onClick = {
+                                    navController.navigate(Screen.AddArticle.getNavDirection(publicationId ?: ""))
+                                }) {
+                                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                                }
                             }
+
                         } else if (Screen.ReviewsList.route == currentRoute) {
 
                             val articleId = navController.currentBackStackEntry?.arguments?.getString(Screen.AddReview.params.first()) ?: ""
