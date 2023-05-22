@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.User
 
 @Composable
@@ -113,7 +114,7 @@ fun EditProfile(
                     name = it
                     nameError = verifyName(it)
                 },
-                label = { Text("Name") },
+                label = { Text(stringResource(id = R.string.edit_profile_name)) },
                 isError = nameError != null,
                 singleLine = true,
                 modifier = Modifier
@@ -131,7 +132,7 @@ fun EditProfile(
                     email = it
                     emailError = verifyEmail(it)
                 },
-                label = { Text("Email") },
+                label = { Text(stringResource(id = R.string.edit_profile_email)) },
                 isError = emailError != null,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -152,7 +153,7 @@ fun EditProfile(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text(text = "Save", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                Text(text = stringResource(id = R.string.action_save), modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             }
 
         } 

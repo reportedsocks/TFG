@@ -23,6 +23,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Article
@@ -45,7 +46,7 @@ fun ArticlesList(
     when(result) {
         is ResultOf.Success -> {
             if (result.data.isEmpty()) {
-                EmptyList(text = "No articles at the moment!", modifier = Modifier)
+                EmptyList(text = stringResource(id = R.string.error_no_articles), modifier = Modifier)
             } else {
                 if (customerRes is ResultOf.Success && customerRes.data != null) {
 
@@ -95,7 +96,7 @@ fun ArticlesList(
                                     .padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
                                 Text(
-                                    text = if (isSelectModeActive) "Done" else "Select Articles",
+                                    text = stringResource(if (isSelectModeActive) R.string.action_done else R.string.action_select_articles),
                                     modifier = Modifier.padding(vertical = 4.dp)
                                 )
                             }

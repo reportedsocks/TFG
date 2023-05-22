@@ -38,10 +38,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.antsyferov.tfg.MainViewModel
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Article
 import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.models.ui.User
@@ -118,7 +120,7 @@ fun UserView(
                         value = customer.email ?: "",
                         onValueChange = {},
                         enabled = false,
-                        label = { Text(text = "Email:") },
+                        label = { Text(text = stringResource(id = R.string.profile_email)) },
                         maxLines = 5,
                         colors = TextFieldDefaults.textFieldColors(
                             disabledTextColor = MaterialTheme.colors.onBackground,
@@ -135,7 +137,7 @@ fun UserView(
                         value = customer.phoneNumber ?: "",
                         onValueChange = {},
                         enabled = false,
-                        label = { Text(text = "Phone:") },
+                        label = { Text(text = stringResource(id = R.string.profile_phone)) },
                         maxLines = 5,
                         colors = TextFieldDefaults.textFieldColors(
                             disabledTextColor = MaterialTheme.colors.onBackground,
@@ -226,7 +228,7 @@ fun UserView(
                                 value = selectedPublicationTitle,
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text(text = "Available publication") },
+                                label = { Text(text = stringResource(id = R.string.user_view_publication)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPublication) },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -285,7 +287,7 @@ fun UserView(
                                         value = selectedArticleTitle1,
                                         onValueChange = {},
                                         readOnly = true,
-                                        label = { Text(text = "Available article 1") },
+                                        label = { Text(text = stringResource(id = R.string.user_view_article_1)) },
                                         trailingIcon = {
                                             ExposedDropdownMenuDefaults.TrailingIcon(
                                                 expanded = expandedArticle1
@@ -341,7 +343,7 @@ fun UserView(
                                         value = selectedArticleTitle2,
                                         onValueChange = {},
                                         readOnly = true,
-                                        label = { Text(text = "Available article 2") },
+                                        label = { Text(text = stringResource(id = R.string.user_view_article_2)) },
                                         trailingIcon = {
                                             ExposedDropdownMenuDefaults.TrailingIcon(
                                                 expanded = expandedArticle2
@@ -397,7 +399,7 @@ fun UserView(
                                         value = selectedArticleTitle3,
                                         onValueChange = {},
                                         readOnly = true,
-                                        label = { Text(text = "Available article 3") },
+                                        label = { Text(text = stringResource(id = R.string.user_view_article_3)) },
                                         trailingIcon = {
                                             ExposedDropdownMenuDefaults.TrailingIcon(
                                                 expanded = expandedArticle3
@@ -459,7 +461,7 @@ fun UserView(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Save",
+                            text = stringResource(id = R.string.action_save),
                             modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
                         )
                     }

@@ -35,8 +35,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Article
 import com.tfg.domain.models.ui.User
 import com.tfg.domain.util.ResultOf
@@ -51,7 +53,7 @@ fun UsersList(
     when(result) {
         is ResultOf.Success -> {
             if (result.data.isEmpty()) {
-                EmptyList(text = "No Users!", modifier = Modifier)
+                EmptyList(text = stringResource(id = R.string.error_no_users), modifier = Modifier)
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),

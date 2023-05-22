@@ -16,4 +16,70 @@
 
     <string name="error_name_validation">Please, enter correct name</string>
     <string name="error_email_validation">Please, enter correct email</string>
+    <string name="error_no_articles">No articles at the moment!</string>
+    <string name="error_no_publications">No publications found!</string>
+    <string name="error_no_reviews">No reviews at the moment!</string>
+    <string name="error_no_users">No Users!</string>
+
+    <string name="action_save">Save</string>
+    <string name="action_calendar">Open Calendar</string>
+    <string name="action_done">Done</string>
+    <string name="action_select_articles">Select Articles</string>
+    <string name="action_view_reviews">View Reviews</string>
+    <string name="action_view_pdf">View PDF</string>
+    <string name="action_save_pdf">Save selected PDF</string>
+    <string name="action_update_pdf">Update PDF</string>
+    <string name="action_download_pdf">Download PDF</string>
+    <string name="action_logout">Log Out</string>
+    <string name="action_delete_acc">Delete Account</string>
+
+    <string name="add_article_title">Title *</string>
+    <string name="add_article_description">Description</string>
+    <string name="add_article_characters">Number of characters *</string>
+    <string name="add_article_selected_file">Selected file:</string>
+    <string name="add_article_choose_another">Choose Another</string>
+    <string name="add_article_add_file">Add PDF</string>
+
+    <string name="add_publication_name">Title</string>
+    <string name="add_publication_description">Description</string>
+    <string name="add_publication_review">Review Date</string>
+    <string name="add_publication_submit">Final submit Date</string>
+    <string name="add_publication_completion">Completion Date</string>
+
+    <string name="add_review_heading">How do you evaluate this article?</string>
+    <string name="add_review_description">Description</string>
+    <string name="add_review_comment">Comment</string>
+
+    <string name="article_view_author">Author:</string>
+    <string name="article_view_description">Description:</string>
+    <string name="article_view_characters">Character count:</string>
+    <string name="article_view_created_at">Created at:</string>
+
+    <string name="edit_profile_name">Name</string>
+    <string name="edit_profile_email">Email</string>
+
+    <string name="profile_name">Name:</string>
+    <string name="profile_email">Email:</string>
+    <string name="profile_phone">Phone:</string>
+    <string name="profile_role">Role:</string>
+    <string name="profile_role_author">Author</string>
+    <string name="profile_role_reviewer">Reviewer</string>
+    <string name="profile_role_admin">Admin</string>
+
+    <string name="publication_status_open">Status: Open</string>
+    <string name="publication_status_closed">Status: Closed</string>
+    <string name="publication_status_submit">Status: Final Submit</string>
+    <string name="publication_status_review">Status: In Review</string>
+
+    <string name="review_rating">Rating:</string>
+    <string name="review_description">Description:</string>
+    <string name="review_confidence">Reviewer\'s confidence:</string>
+    <string name="review_comment">Comment:</string>
+    <string name="review_created_at">Created at: %s</string>
+
+    <string name="user_view_publication">Available Publication</string>
+    <string name="user_view_article_1">Available Article 1</string>
+    <string name="user_view_article_2">Available Article 2</string>
+    <string name="user_view_article_3">Available Article 3</string>
+
 </resources>

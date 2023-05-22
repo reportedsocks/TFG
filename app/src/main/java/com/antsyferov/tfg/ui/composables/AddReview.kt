@@ -24,7 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.ArticleRating
 import com.tfg.domain.models.ui.ReviewRelevance
 
@@ -57,7 +59,7 @@ fun AddReview(
     ) {
 
         Text(
-            text = "How do you evaluate this article?",
+            text = stringResource(id = R.string.add_review_heading),
             style = MaterialTheme.typography.h5
         )
 
@@ -107,7 +109,7 @@ fun AddReview(
             value = description, 
             onValueChange = { description = it },
             maxLines = 5,
-            label = { Text(text = "Description")},
+            label = { Text(text = stringResource(id = R.string.add_review_description))},
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -158,7 +160,7 @@ fun AddReview(
             value = comment,
             onValueChange = { comment = it },
             maxLines = 5,
-            label = { Text(text = "Comment")},
+            label = { Text(text = stringResource(id = R.string.add_review_comment))},
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -168,7 +170,7 @@ fun AddReview(
             onClick = { onSaveButtonClick.invoke(selectedRating.rating, description, selectedRelevance.num, comment) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Save", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+            Text(text = stringResource(id = R.string.action_save), modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
         }
 
 

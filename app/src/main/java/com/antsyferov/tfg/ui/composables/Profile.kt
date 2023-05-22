@@ -14,8 +14,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.User
 import com.tfg.domain.models.ui.UserRole
 import com.antsyferov.tfg.ui.theme.Purple200
@@ -29,7 +31,9 @@ fun Profile(
     onDeleteAccountCallback: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -58,22 +62,22 @@ fun Profile(
 
 
         if (!user.name.isNullOrEmpty()) {
-            ProfileField(title = "Name:" , value = user.name ?: "")
+            ProfileField(title = stringResource(id = R.string.profile_name), value = user.name ?: "")
         }
 
         if (!user.email.isNullOrEmpty()) {
-            ProfileField(title = "Email:" , value = user.email ?: "")
+            ProfileField(title = stringResource(id = R.string.profile_email), value = user.email ?: "")
         }
 
         if (!user.phoneNumber.isNullOrEmpty()) {
-            ProfileField(title = "Phone:" , value = user.phoneNumber ?: "")
+            ProfileField(title = stringResource(id = R.string.profile_phone), value = user.phoneNumber ?: "")
         }
 
         if (userRole is ResultOf.Success) {
-            ProfileField(title = "Role:" , value = when(userRole.data) {
-                UserRole.AUTHOR -> "Author"
-                UserRole.REVIEWER -> "Reviewer"
-                else -> "Admin"
+            ProfileField(title = stringResource(id = R.string.profile_role), value = when(userRole.data) {
+                UserRole.AUTHOR -> stringResource(id = R.string.profile_role_author)
+                UserRole.REVIEWER -> stringResource(id = R.string.profile_role_reviewer)
+                else -> stringResource(id = R.string.profile_role_admin)
             })
         }
 
@@ -83,7 +87,7 @@ fun Profile(
             onClick = onSignOutCallback,
             modifier = Modifier.padding(vertical = 16.dp)
         ) {
-            Text(text = "Log Out")
+            Text(text = stringResource(id = R.string.action_logout))
         }
 
         Button(
@@ -91,7 +95,7 @@ fun Profile(
             colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.error),
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
-            Text(text = "Delete Account")
+            Text(text = stringResource(id = R.string.action_delete_acc))
         }
     }
 }

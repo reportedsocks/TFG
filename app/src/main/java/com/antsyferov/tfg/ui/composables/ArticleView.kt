@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.antsyferov.tfg.R
@@ -88,7 +89,7 @@ fun ArticleView(
                     value = author.name,
                     onValueChange = {},
                     enabled = false,
-                    label = { Text(text = "Author:")},
+                    label = { Text(text = stringResource(id = R.string.article_view_author))},
                     colors = TextFieldDefaults.textFieldColors(disabledTextColor = MaterialTheme.colors.onBackground, disabledLabelColor = MaterialTheme.colors.onBackground),
                     modifier = Modifier
                         .weight(1f)
@@ -119,7 +120,7 @@ fun ArticleView(
                     value = article.description,
                     onValueChange = {},
                     enabled = false,
-                    label = { Text(text = "Description:")},
+                    label = { Text(text = stringResource(id = R.string.article_view_description))},
                     maxLines = 5,
                     colors = TextFieldDefaults.textFieldColors(disabledTextColor = MaterialTheme.colors.onBackground, disabledLabelColor = MaterialTheme.colors.onBackground),
                     modifier = Modifier
@@ -132,7 +133,7 @@ fun ArticleView(
                 value = article.characterCount.toString(),
                 onValueChange = {},
                 enabled = false,
-                label = { Text(text = "Character count:")},
+                label = { Text(text = stringResource(id = R.string.article_view_characters))},
                 colors = TextFieldDefaults.textFieldColors(disabledTextColor = MaterialTheme.colors.onBackground, disabledLabelColor = MaterialTheme.colors.onBackground),
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -143,7 +144,7 @@ fun ArticleView(
                 value = article.createdAt.toString(),
                 onValueChange = {},
                 enabled = false,
-                label = { Text(text = "Created at:")},
+                label = { Text(text = stringResource(id = R.string.article_view_created_at))},
                 colors = TextFieldDefaults.textFieldColors(disabledTextColor = MaterialTheme.colors.onBackground, disabledLabelColor = MaterialTheme.colors.onBackground),
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -160,7 +161,7 @@ fun ArticleView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "View Reviews",
+                    text = stringResource(id = R.string.action_view_reviews),
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
@@ -172,7 +173,7 @@ fun ArticleView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "View PDF",
+                    text = stringResource(id = R.string.action_view_pdf),
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
@@ -185,7 +186,7 @@ fun ArticleView(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = if (showSaveButton) "Save selected PDF" else "Update PDF",
+                        text = if (showSaveButton) stringResource(id = R.string.action_save_pdf) else stringResource(id = R.string.action_update_pdf),
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                 }
@@ -199,7 +200,7 @@ fun ArticleView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Download PDF",
+                    text = stringResource(id = R.string.action_download_pdf),
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }

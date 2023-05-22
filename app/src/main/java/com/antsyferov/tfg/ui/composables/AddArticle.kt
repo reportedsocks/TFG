@@ -9,9 +9,11 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.antsyferov.tfg.R
 
 @Composable
 fun AddArticle(
@@ -41,7 +43,7 @@ fun AddArticle(
             TextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title *") },
+                label = { Text(stringResource(id = R.string.add_article_title)) },
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -49,7 +51,7 @@ fun AddArticle(
             TextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description") },
+                label = { Text(stringResource(id = R.string.add_article_description)) },
                 maxLines = 5,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -59,7 +61,7 @@ fun AddArticle(
             TextField(
                 value = charCount.toString(),
                 onValueChange = { charCount = it.toIntOrNull() ?: 0 },
-                label = { Text("Number of characters *") },
+                label = { Text(stringResource(id = R.string.add_article_characters)) },
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
@@ -69,7 +71,7 @@ fun AddArticle(
 
             if (isPDFSelected) {
                 Text(
-                    text = "Selected file:",
+                    text = stringResource(id = R.string.add_article_selected_file),
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.h6,
                     modifier = Modifier
@@ -94,7 +96,7 @@ fun AddArticle(
                     .padding(top = 16.dp)
             ) {
                 Text(
-                    text = if (isPDFSelected) "Choose Another" else "Add PDF",
+                    text = if (isPDFSelected) stringResource(id = R.string.add_article_choose_another) else stringResource(id = R.string.add_article_add_file),
                     modifier = Modifier
                         .padding(vertical = 4.dp, horizontal = 16.dp)
                 )
@@ -109,7 +111,7 @@ fun AddArticle(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text(text = "Save", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                Text(text = stringResource(id = R.string.action_save), modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             }
 
         }

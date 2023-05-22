@@ -23,7 +23,9 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.ArticleRating
 import com.tfg.domain.models.ui.Review
 import com.tfg.domain.models.ui.ReviewRelevance
@@ -43,7 +45,7 @@ fun ReviewsList(
     when(result) {
         is ResultOf.Success -> {
             if (result.data.isEmpty()) {
-                EmptyList(text = "No reviews at the moment!")
+                EmptyList(text = stringResource(id = R.string.error_no_reviews))
             } else {
 
                 if (customerRes is ResultOf.Success && customerRes.data != null) {
@@ -96,7 +98,7 @@ fun Review(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)) {
 
-            Text(text = "Rating:", style = MaterialTheme.typography.h6)
+            Text(text = stringResource(id = R.string.review_rating), style = MaterialTheme.typography.h6)
             val rating = ArticleRating.getByNum(review.rating)
             Text(
                 text = rating.name,
@@ -118,7 +120,7 @@ fun Review(
                 enabled = false,
                 label = {
                     Text(
-                        text = "Description:",
+                        text = stringResource(id = R.string.review_description),
                         Modifier
                             .background(
                                 color = MaterialTheme.colors.background,
@@ -139,7 +141,7 @@ fun Review(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Reviewer's confidence:", style = MaterialTheme.typography.h6)
+            Text(text = stringResource(id = R.string.review_confidence), style = MaterialTheme.typography.h6)
             val relevance = ReviewRelevance.getByNum(review.relevance)
             Text(
                 text = relevance.name,
@@ -160,7 +162,7 @@ fun Review(
                 enabled = false,
                 label = {
                     Text(
-                        text = "Comment:",
+                        text = stringResource(id = R.string.review_comment),
                         Modifier
                             .background(
                                 color = MaterialTheme.colors.background,
@@ -181,7 +183,7 @@ fun Review(
 
             Spacer(modifier = Modifier.height(16.dp))
             val date = review.createdAt.toString()
-            Text(text = "Created at: $date", style = MaterialTheme.typography.caption, color = Color.White)
+            Text(text = stringResource(id = R.string.review_created_at, date), style = MaterialTheme.typography.caption, color = Color.White)
 
         }
 

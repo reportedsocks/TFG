@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Publication
@@ -39,7 +40,7 @@ fun PublicationsList(
     when(result) {
         is ResultOf.Success -> {
             if (result.data.isEmpty()) {
-                EmptyList(text = "No publications found!", modifier = Modifier)
+                EmptyList(text = stringResource(id = R.string.error_no_publications), modifier = Modifier)
             } else {
                 if (customerRes is ResultOf.Success && customerRes.data != null) {
 
@@ -119,13 +120,13 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                         style = MaterialTheme.typography.h5
                     )
                     val status = when(publication.status) {
-                        Publication.Status.OPEN -> "Open"
-                        Publication.Status.CLOSED -> "Closed"
-                        Publication.Status.FINAL_SUBMIT -> "Final Submit"
-                        Publication.Status.IN_REVIEW -> "In Review"
+                        Publication.Status.OPEN -> R.string.publication_status_open
+                        Publication.Status.CLOSED -> R.string.publication_status_closed
+                        Publication.Status.FINAL_SUBMIT -> R.string.publication_status_submit
+                        Publication.Status.IN_REVIEW -> R.string.publication_status_review
                     }
                     Text(
-                        text = "Status: $status",
+                        text = stringResource(id = status),
                         style = MaterialTheme.typography.subtitle1
                     )
 
@@ -165,12 +166,15 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)) {
 
                         TextField(
                             value = publication.reviewDate.toString(),
                             onValueChange = {  },
-                            label = { Text("Review Date") },
+                            label = { Text(stringResource(id = R.string.add_publication_review)) },
                             enabled = false,
                             maxLines = 1,
                             modifier = Modifier
@@ -183,7 +187,7 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                         TextField(
                             value = publication.finalSubmitDate.toString(),
                             onValueChange = {  },
-                            label = { Text("Final Submit Date") },
+                            label = { Text(stringResource(id = R.string.add_publication_submit)) },
                             enabled = false,
                             maxLines = 1,
                             modifier = Modifier
@@ -196,7 +200,7 @@ fun Publication(modifier: Modifier, publication: Publication, onNavToArticles: (
                         TextField(
                             value = publication.completionDate.toString(),
                             onValueChange = {  },
-                            label = { Text("Completion Date") },
+                            label = { Text(stringResource(id = R.string.add_publication_completion)) },
                             enabled = false,
                             maxLines = 1,
                             modifier = Modifier

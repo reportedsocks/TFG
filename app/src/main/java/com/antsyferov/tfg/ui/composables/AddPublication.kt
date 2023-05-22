@@ -19,7 +19,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.Publication
 import java.util.Calendar
 import java.util.Date
@@ -85,7 +87,7 @@ fun AddPublication(
             TextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title") },
+                label = { Text(stringResource(id = R.string.add_publication_name)) },
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -93,7 +95,7 @@ fun AddPublication(
             TextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description") },
+                label = { Text(stringResource(id = R.string.add_publication_description)) },
                 maxLines = 5,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,7 +107,7 @@ fun AddPublication(
             TextField(
                 value = reviewDate.toString(),
                 onValueChange = {  },
-                label = { Text("Review Date") },
+                label = { Text(stringResource(id = R.string.add_publication_review)) },
                 enabled = false,
                 maxLines = 5,
                 modifier = Modifier
@@ -116,13 +118,13 @@ fun AddPublication(
             Button(onClick = {
                 reviewDatePickerDialog.show()
             }) {
-                Text(text = "Open Calendar", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                Text(text = stringResource(id = R.string.action_calendar), modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             }
 
             TextField(
                 value = finalSubmitDate.toString(),
                 onValueChange = {  },
-                label = { Text("Final submit Date") },
+                label = { Text(stringResource(id = R.string.add_publication_submit)) },
                 enabled = false,
                 maxLines = 5,
                 modifier = Modifier
@@ -133,13 +135,13 @@ fun AddPublication(
             Button(onClick = {
                 finalSubmitDatePickerDialog.show()
             }) {
-                Text(text = "Open Calendar", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                Text(text = stringResource(id = R.string.action_calendar), modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             }
 
             TextField(
                 value = completionDate.toString(),
                 onValueChange = {  },
-                label = { Text("Completion Date") },
+                label = { Text(stringResource(id = R.string.add_publication_completion)) },
                 enabled = false,
                 maxLines = 5,
                 modifier = Modifier
@@ -150,7 +152,7 @@ fun AddPublication(
             Button(onClick = {
                 completionDatePickerDialog.show()
             }) {
-                Text(text = "Open Calendar", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                Text(text = stringResource(id = R.string.action_calendar), modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             }
 
 
@@ -169,7 +171,7 @@ fun AddPublication(
                 enabled = isSaveEnabled && !isLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Save", modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
+                Text(text = stringResource(id = R.string.action_save), modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             }
 
         }
