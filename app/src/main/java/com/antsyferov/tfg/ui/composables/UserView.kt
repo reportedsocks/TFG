@@ -247,6 +247,7 @@ fun UserView(
                                 publications.forEach { item ->
                                     DropdownMenuItem(
                                         onClick = {
+                                            customer.publicationId = item.id
                                             selectedPublication = item
                                             selectedPublicationTitle = item.title
                                             expandedPublication = false

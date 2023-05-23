@@ -9,7 +9,7 @@ data class User(
     val phoneNumber: String?,
     val avatar: Uri?,
     val role: UserRole = UserRole.AUTHOR,
-    val publicationId: String? = null,
+    var publicationId: String? = null,
     val articleId1: String? = null,
     val articleId2: String? = null,
     val articleId3: String? = null
