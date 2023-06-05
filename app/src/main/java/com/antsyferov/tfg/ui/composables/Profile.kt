@@ -20,7 +20,6 @@ import coil.compose.AsyncImage
 import com.antsyferov.tfg.R
 import com.tfg.domain.models.ui.User
 import com.tfg.domain.models.ui.UserRole
-import com.antsyferov.tfg.ui.theme.Purple200
 import com.tfg.domain.util.ResultOf
 
 @Composable
@@ -111,7 +110,7 @@ fun ProfileField(title: String, value: String) {
     ) {
         Text(text = title, style = MaterialTheme.typography.subtitle1)
         Text(text = value, style = MaterialTheme.typography.h5)
-        Divider(thickness = 1.dp, color = Purple200, modifier = Modifier.padding(top = 8.dp))
+        Divider(thickness = 1.dp, color = MaterialTheme.colors.secondary, modifier = Modifier.padding(top = 8.dp))
     }
 
 }
