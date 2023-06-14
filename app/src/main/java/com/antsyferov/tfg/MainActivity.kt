@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.antsyferov.tfg.navigation.*
 import com.tfg.domain.models.ui.User
 import com.antsyferov.tfg.ui.theme.TFGTheme
+import com.firebase.ui.auth.AuthMethodPickerLayout
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
@@ -83,6 +84,8 @@ class MainActivity : ComponentActivity() {
             val signInIntent = authUI
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
+                .setLogo(R.drawable.ic_book)
+                .setTheme(R.style.ThemeLogin)
                 .build()
             signInLauncher.launch(signInIntent)
         }
