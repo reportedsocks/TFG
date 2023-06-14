@@ -1,7 +1,6 @@
 package com.tfg.domain.use_cases
 
 import com.tfg.domain.interfaces.PublicationsDataSource
-import com.tfg.domain.interfaces.UserDataSource
 import com.tfg.domain.models.ui.Publication
 import com.tfg.domain.util.ResultOf
 import com.tfg.domain.util.transform
@@ -11,8 +10,7 @@ import java.util.Date
 import javax.inject.Inject
 
 class PublicationsListUseCaseImpl @Inject constructor(
-    private val publicationsDataSource: PublicationsDataSource,
-    private val userDataSource: UserDataSource
+    private val publicationsDataSource: PublicationsDataSource
 ): PublicationsListUseCase {
 
     override fun getPublications(): Flow<ResultOf<List<Publication>>> {

@@ -2,7 +2,6 @@ package com.tfg.domain.use_cases
 
 import com.tfg.domain.interfaces.PublicationsDataSource
 import com.tfg.domain.interfaces.ReviewsDataSource
-import com.tfg.domain.models.ui.Article
 import com.tfg.domain.models.ui.Review
 import com.tfg.domain.util.ResultOf
 import com.tfg.domain.util.transform
